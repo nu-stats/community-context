@@ -1,6 +1,6 @@
 # Immigration and Crime: Community Context
 
-A small website for Assignment A (`../community-context.md`). A student chooses a group (country of birth), a ranking period and a third variable (population and foreign_born_percent are given). The page shows:
+A small website for Assignment A (`../community-context.md`). A student chooses a group (country of birth), a ranking period and three indicators from a menu of seven (population and foreign_born_percent are given). The page shows:
 
 - the 50 cities where the group is largest, with the group size and the three variables in each of the three periods;
 - the weighted-average calculation step by step (sum of the weights, sum of weight x value, the division, the plain average, the national value, the weighted average minus the plain average);
@@ -45,7 +45,8 @@ The first command writes the three `group-*.tsv` tables (it also rewrites `cours
 - Cities are ranked by the group's size in the chosen period. If two cities have the same size, the lower city code comes first.
 - Weighted average = sum of (group size x value) / sum of group size, over the 50 cities, using the group size of the same period.
 - A city with no value for a variable is left out of that variable's calculation (its weight is not counted either).
-- National values: `foreign_born_percent` (11.1, 12.7, 14.1) and `population` (281,421,906; 303,965,272; 334,922,499, the 50 states and DC from the same Census tables as the city data) are filled in. The student types the third.
+- National values: `foreign_born_percent` (11.1, 12.7, 14.1) and `population` (281,421,906; 303,965,272; 334,922,499, the 50 states and DC from the same Census tables as the city data) are filled in. The student types the national value for each of the three indicators chosen.
+- Menu: poverty_percent, unemployment_percent, median_household_income, bachelors_percent, renter_percent, black_percent, hispanic_percent. The five indicators beyond poverty and unemployment come from site/fetch/ (Census 2000 SF3 and ACS 2006-2010 bulk files) and the existing 2020-2024 ACS file; income is in each period's own dollars.
 - The CSV has plain variable names only, for example `poverty_percent_2020_24`. City codes with a leading zero lose it if a spreadsheet opens the file and treats the column as numbers.
 
 ## Publish on GitHub Pages (not done)

@@ -3,15 +3,16 @@
 
 const PERIODS = ['2000', '2006_10', '2020_24'];
 const PERIOD_LABEL = { '2000': '2000 Census', '2006_10': '2006-2010 survey', '2020_24': '2020-2024 survey' };
-const VARIABLES = ['population', 'foreign_born_percent', 'poverty_percent', 'unemployment_percent'];
+const GIVEN = ['population', 'foreign_born_percent']; // always shown
+const MENU = ['poverty_percent', 'unemployment_percent', 'median_household_income', 'bachelors_percent', 'renter_percent', 'black_percent', 'hispanic_percent']; // the student chooses three
+const VARIABLES = [...GIVEN, ...MENU];
 const TOP = 50;
 // National values the course provides. The student types the others.
 const national = {
   population: { '2000': '281421906', '2006_10': '303965272', '2020_24': '334922499' }, // 50 states and DC, same tables as the city data
   foreign_born_percent: { '2000': '11.1', '2006_10': '12.7', '2020_24': '14.1' },
-  poverty_percent: { '2000': '', '2006_10': '', '2020_24': '' },
-  unemployment_percent: { '2000': '', '2006_10': '', '2020_24': '' },
 };
+for (const v of MENU) national[v] = { '2000': '', '2006_10': '', '2020_24': '' };
 
 let cities, groups;
 const $ = (id) => document.getElementById(id);
@@ -42,8 +43,8 @@ async function start() {
   fill($('v1'), [['population', 'population']], 'population');
   fill($('v2'), [['foreign_born_percent', 'foreign_born_percent']], 'foreign_born_percent');
   $('v1').disabled = $('v2').disabled = true;
-  fill($('v3'), ['poverty_percent', 'unemployment_percent'].map((v) => [v, v]), 'poverty_percent');
-  ['group', 'rank', 'v1', 'v2', 'v3'].forEach((id) => $(id).addEventListener('change', render));
+  ['v3', 'v4', 'v5'].forEach((id, k) => fill($(id), MENU.map((v) => [v, v]), MENU[k]));
+  ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('savenotes').addEventListener('click', saveNotes);
@@ -60,8 +61,9 @@ function topCities(g, rankBy) {
 
 function render() {
   const gv = $('group').value;
-  const vars = [$('v1').value, $('v2').value, $('v3').value];
-  $('problem').textContent = new Set(vars).size < 3 ? 'Choose three different variables.' : '';
+  const vars = [$('v3').value, $('v4').value, $('v5').value]; // the three chosen
+  const shown = [...GIVEN, ...vars];
+  $('problem').textContent = new Set(vars).size < 3 ? 'Choose three different indicators.' : '';
   const chosen = gv !== '';
   document.querySelectorAll('.need').forEach((e) => (e.hidden = chosen));
   document.querySelectorAll('.have').forEach((e) => (e.hidden = !chosen));
@@ -69,7 +71,7 @@ function render() {
   const g = Number(gv);
   const rankBy = $('rank').value;
   const rows = topCities(g, rankBy);
-  current = { g, rankBy, vars, rows };
+  current = { g, rankBy, vars, shown, rows };
   $('title-top').textContent = `${groups.names[g]}: the ${TOP} cities where the group is largest (ranked by ${PERIOD_LABEL[rankBy]})`;
   $('title-weighted').textContent = `Weighted averages for ${groups.names[g]} (top ${TOP} cities, ranked by ${PERIOD_LABEL[rankBy]})`;
   drawTop();
@@ -121,7 +123,7 @@ function drawData() {
 }
 
 function drawTop() {
-  const { g, vars, rows } = current;
+  const { g, shown: vars, rows } = current;
   let h = '<thead><tr><th class="l" rowspan="2">rank</th><th class="l" rowspan="2">city</th><th class="l" rowspan="2">state</th><th class="l" rowspan="2">city_code</th>';
   h += '<th colspan="3">group size (people born in the group\'s country)</th>';
   vars.forEach((v) => (h += `<th colspan="3">${esc(v)}</th>`));
@@ -138,7 +140,7 @@ function drawTop() {
 function drawNational() {
   const t = $('national');
   let h = '<thead><tr><th class="l">variable</th>' + PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>';
-  VARIABLES.forEach((v) => {
+  current.shown.forEach((v) => {
     h += `<tr><td class="l">${v}</td>` + PERIODS.map((p) => `<td><input type="number" step="any" aria-label="${v} ${PERIOD_LABEL[p]}" data-v="${v}" data-p="${p}" value="${esc(national[v][p])}"></td>`).join('') + '</tr>';
   });
   t.innerHTML = h + '</tbody>';
@@ -195,7 +197,7 @@ function drawCoverage() {
 
 function downloadCsv() {
   if (!current) return;
-  const { g, vars, rows } = current;
+  const { g, shown: vars, rows } = current;
   const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
   const head = ['group', 'rank', 'city_code', 'city', 'state'];
   PERIODS.forEach((p) => head.push(`group_size_${p}`));

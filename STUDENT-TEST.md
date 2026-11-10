@@ -7,7 +7,7 @@ You need: the site open in a browser, a pen or a notes file, and the assignment 
 ## Steps
 
 1. Pick one group (country of birth) that you know something about, for example the country your family or a friend's family comes from.
-2. Open the site. Choose your group, rank the cities by **2020-2024 survey**, and choose poverty_percent or unemployment_percent as variable 3 (variables 1 and 2 are given).
+2. Open the site. Choose your group, rank the cities by **2020-2024 survey**, and choose three indicators from the menu (population and foreign_born_percent are given).
 3. Look at the table of 50 cities. Write down the first three cities and their group sizes in 2020-2024. Does this match what you expected about where the group lives?
 4. Choose a different ranking period (for example 2000 Census). Did the first three cities change? Which cities appear at only one period?
 5. In **Step 2**, type the national value of each of your three variables for each period. (The assignment says the course provides them. If you cannot find them, write that down.)

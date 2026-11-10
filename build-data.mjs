@@ -54,6 +54,24 @@ for (const p of periods) {
   cities.values[p] = {};
   for (const v of variables) cities.values[p][v] = rows.map((r) => num(r[col(`${v}_${p}`)]));
 }
+// ---- five more indicators (median income, bachelor's, renters, Black, Hispanic) ----
+// Census 2000 and ACS 2006-2010 come from site/fetch/*.mjs; ACS 2020-2024 from scripts/fetch-acs-social.mjs.
+// All five come from the same Census tables in every period. black_percent is Black alone, not Hispanic.
+const census = join(here, '..', '..', '..', 'data', 'source', 'census');
+const extraFiles = { '2000': 'sf3-2000-places-extra.json', '2006_10': 'acs2010-places-extra.json', '2020_24': 'acs2024_social.json' };
+const extraKeys = {
+  median_household_income: 'inc',
+  bachelors_percent: 'ba',
+  renter_percent: 'rent',
+  black_percent: 'blk',
+  hispanic_percent: 'hisp',
+};
+for (const p of periods) {
+  const place = JSON.parse(readFileSync(join(census, extraFiles[p]), 'utf8')).place;
+  for (const [name, key] of Object.entries(extraKeys)) {
+    cities.values[p][name] = cities.code.map((id) => place[id]?.[key] ?? null);
+  }
+}
 writeFileSync(join(out, 'cities.json'), JSON.stringify(cities));
 
 // ---- groups ----
