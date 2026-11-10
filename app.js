@@ -44,7 +44,7 @@ async function start() {
   fill($('v2'), [['foreign_born_percent', 'foreign_born_percent']], 'foreign_born_percent');
   $('v1').disabled = $('v2').disabled = true;
   // No indicator is pre-selected: each student has to choose her own three.
-  ['v3', 'v4', 'v5'].forEach((id) => fill($(id), [['', 'Choose an indicator...'], ...MENU.map((v) => [v, v])], ''));
+  ['v3', 'v4', 'v5'].forEach((id) => fill($(id), [['', ''], ...MENU.map((v) => [v, v])], ''));
   ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
