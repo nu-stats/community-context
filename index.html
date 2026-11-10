@@ -34,6 +34,7 @@
       <label for="v5">Your indicator 3</label><select id="v5"></select>
     </div>
     <p id="problem" class="err"></p>
+    <p><label><input type="checkbox" id="real" checked> Show median_household_income in 2024 dollars</label><br><span class="muted">Income is published in the dollars of each period (1999, 2010 and 2024). With this box ticked, 2000 and 2006-2010 are restated in 2024 dollars using the consumer price index, for the cities and for the national value, so the three periods can be compared. Untick it to see the published dollars.</span></p>
 
     <h2>Task 1. Choose three indicators</h2>
     <p>Two indicators are given: <code>population</code> (a count) and <code>foreign_born_percent</code>. Choose three more above, from poverty_percent, unemployment_percent, median_household_income, bachelors_percent, renter_percent, black_percent and hispanic_percent. You use the same indicators in every period. All five are shown for the 50 cities; the weighted averages are for the three you chose.</p>
@@ -49,7 +50,7 @@
 
     <h2>Notes</h2>
     <p class="muted">Cities: the 343 incorporated places with more than 75,000 residents in 2000, 2006-2010 and 2020-2024. Groups: the 59 countries and regions of birth with more than 75,000 members in the United States in 2000 that the Census Bureau reports the same way in all three periods. Sources: Census 2000 Summary File 3; American Community Survey 5-year estimates, 2006-2010 and 2020-2024. If two cities have exactly the same group size, the one with the lower city_code is ranked first.</p>
-    <p class="muted">Indicator definitions: poverty_percent is the percent of people below the poverty level; unemployment_percent is the percent of the civilian labor force; median_household_income is in dollars of each period (1999, 2010 and 2024 dollars), not adjusted for inflation, so the three periods are not directly comparable; bachelors_percent is the percent of adults 25 and over with a bachelor's degree or higher; renter_percent is the percent of occupied homes that are rented; black_percent is Black or African American alone (not Hispanic); hispanic_percent is Hispanic or Latino of any race. Each is the same Census table in all three periods. The weighted average of median_household_income is an average of city medians, not a median.</p>
+    <p class="muted">Indicator definitions: poverty_percent is the percent of people below the poverty level; unemployment_percent is the percent of the civilian labor force; median_household_income is in 2024 dollars when the box on Start here is ticked (2000 and 2006-2010 restated with the annual consumer price index, CPI-U), and in the dollars of each period (1999, 2010, 2024) when it is not; bachelors_percent is the percent of adults 25 and over with a bachelor's degree or higher; renter_percent is the percent of occupied homes that are rented; black_percent is Black or African American alone (not Hispanic); hispanic_percent is Hispanic or Latino of any race. Each is the same Census table in all three periods. The weighted average of median_household_income is an average of city medians, not a median.</p>
   </section>
 
   <!-- ===== Top 50 ===== -->

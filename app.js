@@ -15,6 +15,17 @@ const national = {
 };
 for (const v of MENU) national[v] = { '2000': '', '2006_10': '', '2020_24': '' };
 
+// Median household income is in each period's own dollars (1999, 2010, 2024). The switch on
+// Start here restates 2000 and 2006-2010 in 2024 dollars with the annual consumer price index
+// (CPI-U, U.S. city average, BLS: 1999 = 166.575, 2010 = 218.056, 2024 = 313.689).
+const CPI = { '2000': 166.575, '2006_10': 218.056, '2020_24': 313.689 };
+const factor = (p) => ($('real') && $('real').checked ? CPI['2020_24'] / CPI[p] : 1);
+const isMoney = (v) => v === 'median_household_income';
+function values(p, v) {
+  const raw = cities.values[p][v];
+  return isMoney(v) && factor(p) !== 1 ? raw.map((x) => (x === null ? null : Math.round(x * factor(p)))) : raw;
+}
+
 let cities, groups;
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -53,6 +64,7 @@ async function start() {
   ['v3', 'v4', 'v5'].forEach((id) => fill($(id), [['', ''], ...MENU.map((v) => [v, v])], ''));
   ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
+  $('real').addEventListener('change', render);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('savenotes').addEventListener('click', saveNotes);
   render();
@@ -104,7 +116,7 @@ function dataColumns() {
     { name: 'state', get: (i) => cities.state[i], text: true },
   ];
   PERIODS.forEach((p) => cols.push({ name: `group_size_${p}`, get: (i) => ($('group').value !== '' ? groups.size[p][Number($('group').value)][i] : null) }));
-  VARIABLES.forEach((v) => PERIODS.forEach((p) => cols.push({ name: `${v}_${p}`, get: (i) => cities.values[p][v][i] })));
+  VARIABLES.forEach((v) => PERIODS.forEach((p) => cols.push({ name: `${v}_${p}`, get: (i) => values(p, v)[i] })));
   return cols;
 }
 function drawData() {
@@ -139,7 +151,7 @@ function drawTop() {
   rows.forEach((i, k) => {
     h += `<tr><td class="l">${k + 1}</td><td class="l">${esc(cities.city[i])}</td><td class="l">${esc(cities.state[i])}</td><td class="l">${esc(cities.code[i])}</td>`;
     PERIODS.forEach((p) => (h += `<td>${int(groups.size[p][g][i])}</td>`));
-    vars.forEach((v) => PERIODS.forEach((p) => (h += `<td>${cell(cities.values[p][v][i])}</td>`)));
+    vars.forEach((v) => PERIODS.forEach((p) => (h += `<td>${cell(values(p, v)[i])}</td>`)));
     h += '</tr>';
   });
   $('top').innerHTML = h + '</tbody>';
@@ -148,11 +160,12 @@ function drawTop() {
 // National values are typed as text (a number box changes when the mouse wheel passes over it).
 function natNumber(v, p) {
   const s = national[v] ? String(national[v][p]).trim() : '';
-  return s !== '' && Number.isFinite(Number(s)) ? Number(s) : null;
+  if (s === '' || !Number.isFinite(Number(s))) return null;
+  return isMoney(v) && factor(p) !== 1 ? Math.round(Number(s) * factor(p)) : Number(s);
 }
 function natText(v, p) {
   const s = String(national[v][p]);
-  return COUNTS.includes(v) && natNumber(v, p) !== null ? int(Number(s)) : s;
+  return COUNTS.includes(v) && natNumber(v, p) !== null ? int(natNumber(v, p)) : s;
 }
 
 function drawNational() {
@@ -163,7 +176,9 @@ function drawNational() {
   });
   t.innerHTML = h + '</tbody>';
   t.querySelectorAll('input').forEach((el) => el.addEventListener('input', () => {
-    national[el.dataset.v][el.dataset.p] = el.value.replace(/[,s]/g, '');
+    const typed = el.value.replace(/[,s]/g, '');
+    const f = isMoney(el.dataset.v) ? factor(el.dataset.p) : 1; // stored in the period's own dollars
+    national[el.dataset.v][el.dataset.p] = typed !== '' && Number.isFinite(Number(typed)) && f !== 1 ? String(Number(typed) / f) : typed;
     drawCalcs();
   }));
 }
@@ -172,7 +187,7 @@ function drawNational() {
 function calc(v, p) {
   const { g, rows } = current;
   const weight = groups.size[p][g];
-  const value = cities.values[p][v];
+  const value = values(p, v);
   let sumW = 0, sumWV = 0, sumV = 0, n = 0;
   for (const i of rows) {
     if (value[i] === null || value[i] === undefined) continue; // no value: left out
@@ -219,12 +234,12 @@ function downloadCsv() {
   const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
   const head = ['group', 'rank', 'city_code', 'city', 'state'];
   PERIODS.forEach((p) => head.push(`group_size_${p}`));
-  vars.forEach((v) => PERIODS.forEach((p) => head.push(`${v}_${p}`)));
+  vars.forEach((v) => PERIODS.forEach((p) => head.push(`${v}${isMoney(v) && $('real').checked ? '_2024_dollars' : ""}_${p}`)));
   const lines = [head.join(',')];
   rows.forEach((i, k) => {
     const r = [groups.names[g], k + 1, cities.code[i], cities.city[i], cities.state[i]];
     PERIODS.forEach((p) => r.push(groups.size[p][g][i]));
-    vars.forEach((v) => PERIODS.forEach((p) => r.push(cities.values[p][v][i] ?? '')));
+    vars.forEach((v) => PERIODS.forEach((p) => r.push(values(p, v)[i] ?? '')));
     lines.push(r.map(q).join(','));
   });
   const text = lines.join('\r\n') + '\r\n';
