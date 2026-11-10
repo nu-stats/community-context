@@ -6,6 +6,7 @@ const PERIOD_LABEL = { '2000': '2000 Census', '2006_10': '2006-2010 survey', '20
 const GIVEN = ['population', 'foreign_born_percent']; // always shown
 const MENU = ['poverty_percent', 'unemployment_percent', 'median_household_income', 'bachelors_percent', 'renter_percent', 'black_percent', 'hispanic_percent']; // the student chooses three
 const VARIABLES = [...GIVEN, ...MENU];
+const COUNTS = ['population', 'median_household_income']; // whole numbers, shown with thousands separators
 const TOP = 50;
 // National values the course provides. The student types the others.
 const national = {
@@ -36,6 +37,11 @@ async function start() {
     $('problem').textContent = 'The data files did not load (' + e.message + '). Open this page from a web server, not by double-clicking the file. See README.md.';
     return;
   }
+  // National values for the menu indicators (computed from the Census Bureau's U.S.-level tables); optional.
+  try {
+    const n = await fetch('data/national.json').then((r) => (r.ok ? r.json() : null));
+    if (n) for (const p of PERIODS) for (const v of MENU) if (n[p] && n[p][v] !== undefined) national[v][p] = v.endsWith('_percent') ? Number(n[p][v]).toFixed(1) : String(n[p][v]);
+  } catch (e) { /* the student can type them */ }
   const order = groups.names.map((n, i) => [n, i]).sort((a, b) => a[0].localeCompare(b[0]));
   fill($('group'), [['', 'Choose a group...'], ...order.map(([n, i]) => [String(i), n])], '');
   fill($('rank'), PERIODS.map((p) => [p, PERIOD_LABEL[p]]), '2020_24');
@@ -139,15 +145,25 @@ function drawTop() {
   $('top').innerHTML = h + '</tbody>';
 }
 
+// National values are typed as text (a number box changes when the mouse wheel passes over it).
+function natNumber(v, p) {
+  const s = national[v] ? String(national[v][p]).trim() : '';
+  return s !== '' && Number.isFinite(Number(s)) ? Number(s) : null;
+}
+function natText(v, p) {
+  const s = String(national[v][p]);
+  return COUNTS.includes(v) && natNumber(v, p) !== null ? int(Number(s)) : s;
+}
+
 function drawNational() {
   const t = $('national');
   let h = '<thead><tr><th class="l">variable</th>' + PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>';
   current.shown.forEach((v) => {
-    h += `<tr><td class="l">${v}</td>` + PERIODS.map((p) => `<td><input type="number" step="any" aria-label="${v} ${PERIOD_LABEL[p]}" data-v="${v}" data-p="${p}" value="${esc(national[v][p])}"></td>`).join('') + '</tr>';
+    h += `<tr><td class="l">${v}</td>` + PERIODS.map((p) => `<td><input type="text" inputmode="decimal" autocomplete="off" aria-label="${v} ${PERIOD_LABEL[p]}" data-v="${v}" data-p="${p}" value="${esc(natText(v, p))}"></td>`).join('') + '</tr>';
   });
   t.innerHTML = h + '</tbody>';
   t.querySelectorAll('input').forEach((el) => el.addEventListener('input', () => {
-    national[el.dataset.v][el.dataset.p] = el.value;
+    national[el.dataset.v][el.dataset.p] = el.value.replace(/[,s]/g, '');
     drawCalcs();
   }));
 }
@@ -170,7 +186,7 @@ function drawCalcs() {
   let h = '';
   current.vars.forEach((v) => {
     const res = PERIODS.map((p) => calc(v, p));
-    const nat = PERIODS.map((p) => (!national[v] || national[v][p] === '' ? null : Number(national[v][p])));
+    const nat = PERIODS.map((p) => (natNumber(v, p)));
     const row = (label, f, cls = '') => `<tr class="${cls}"><td class="l">${label}</td>` + PERIODS.map((p, k) => `<td>${f(res[k], k)}</td>`).join('') + '</tr>';
     h += `<h3>${esc(v)}</h3><div class="tablewrap" style="max-width:760px"><table class="calc"><thead><tr><th class="l"></th>` +
       PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>' +
@@ -179,7 +195,7 @@ function drawCalcs() {
       row('Sum of (group size x value)', (r) => int(r.sumWV)) +
       row('Weighted average = second row / first row', (r) => (r.weighted === null ? 'no group residents' : dec(r.weighted)), 'key') +
       row('Plain average of the cities', (r) => (r.plain === null ? '' : dec(r.plain))) +
-      row('National value', (r, k) => (nat[k] === null ? '<span class="muted">type it in Step 1</span>' : v === 'population' ? int(nat[k]) : String(nat[k]))) +
+      row('National value', (r, k) => (nat[k] === null ? '<span class="muted">type it in Step 1</span>' : COUNTS.includes(v) ? int(nat[k]) : String(nat[k]))) +
       row('Weighted average minus plain average', (r) => (r.weighted === null || r.plain === null ? '' : dec(r.weighted - r.plain))) +
       '</tbody></table></div>';
   });

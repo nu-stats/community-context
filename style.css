@@ -31,7 +31,7 @@ section.tab[hidden], .have[hidden], .need[hidden] { display: none; }
 .choose { display: grid; grid-template-columns: max-content 1fr; gap: 10px 14px; align-items: center; padding: 16px; max-width: 660px; }
 .need { padding: 14px 16px; margin-top: 16px; }
 .formula { padding: 10px 14px; border-left: 3px solid var(--accent); color: var(--text); }
-select, input[type=number] { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); }
+select, input[type=number], table input[type=text] { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); }
 select { width: 100%; }
 input[type=text], textarea { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--border-hover); border-radius: var(--btn); background: rgba(255,255,255,.05); }
 textarea { width: 100%; min-height: 4.5em; margin-top: 4px; display: block; }
@@ -39,7 +39,7 @@ textarea { width: 100%; min-height: 4.5em; margin-top: 4px; display: block; }
 a { color: #8fd0ff; }
 input[type=checkbox] { margin-right: 6px; }
 select option { background: var(--panel); color: var(--text); }
-input[type=number] { width: 8em; }
+table input[type=text] { width: 9.5em; text-align: right; }
 select:focus, input:focus, button:focus-visible { outline: 2px solid rgba(255,255,255,.55); outline-offset: 1px; }
 button { font: inherit; padding: 8px 16px; border: 1px solid transparent; background: var(--accent); color: #fff; border-radius: var(--btn); cursor: pointer; font-weight: 600; transition: filter 150ms; }
 button:hover { filter: brightness(1.15); }

@@ -15,6 +15,7 @@ It does the same as the course workbook (`../data/community-context-workbook.xls
 | --- | --- |
 | `index.html`, `app.js`, `style.css` | The page, with five tabs: Start here, Top 50, Data, Weighted averages and Test this site. Plain HTML and JavaScript, no build step, no packages. The look follows Husky Eye View (dark, glass panels). |
 | `data/cities.json` | 343 cities: code, name, state and the four variables for three periods. |
+| `data/national.json` | National value of each menu indicator for three periods. |
 | `data/groups.json` | 59 groups: group size in each city for three periods, and the U.S. total. |
 | `build-data.mjs` | Rebuilds the two JSON files from the validated source tables. |
 | `STUDENT-TEST.md` | A walkthrough for a student who tests the site. |
@@ -45,7 +46,7 @@ The first command writes the three `group-*.tsv` tables (it also rewrites `cours
 - Cities are ranked by the group's size in the chosen period. If two cities have the same size, the lower city code comes first.
 - Weighted average = sum of (group size x value) / sum of group size, over the 50 cities, using the group size of the same period.
 - A city with no value for a variable is left out of that variable's calculation (its weight is not counted either).
-- National values: `foreign_born_percent` (11.1, 12.7, 14.1) and `population` (281,421,906; 303,965,272; 334,922,499, the 50 states and DC from the same Census tables as the city data) are filled in. The student types the national value for each of the three indicators chosen.
+- National values: filled in for all indicators and periods from Census Bureau U.S.-level tables (50 states and DC, same definitions as the city values): `data/national.json` for the seven menu indicators (computed by `fetch/fetch-national.mjs`), plus foreign_born_percent (11.1, 12.7, 14.1) and population (281,421,906; 303,965,272; 334,922,499) in `app.js`. Income is in each period's own dollars. Students can overtype any value.
 - Menu: poverty_percent, unemployment_percent, median_household_income, bachelors_percent, renter_percent, black_percent, hispanic_percent. The five indicators beyond poverty and unemployment come from site/fetch/ (Census 2000 SF3 and ACS 2006-2010 bulk files) and the existing 2020-2024 ACS file; income is in each period's own dollars.
 - The CSV has plain variable names only, for example `poverty_percent_2020_24`. City codes with a leading zero lose it if a spreadsheet opens the file and treats the column as numbers.
 
