@@ -43,7 +43,8 @@ async function start() {
   fill($('v1'), [['population', 'population']], 'population');
   fill($('v2'), [['foreign_born_percent', 'foreign_born_percent']], 'foreign_born_percent');
   $('v1').disabled = $('v2').disabled = true;
-  ['v3', 'v4', 'v5'].forEach((id, k) => fill($(id), MENU.map((v) => [v, v]), MENU[k]));
+  // No indicator is pre-selected: each student has to choose her own three.
+  ['v3', 'v4', 'v5'].forEach((id) => fill($(id), [['', 'Choose an indicator...'], ...MENU.map((v) => [v, v])], ''));
   ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
@@ -63,8 +64,9 @@ function render() {
   const gv = $('group').value;
   const vars = [$('v3').value, $('v4').value, $('v5').value]; // the three chosen
   const shown = [...GIVEN, ...vars];
-  $('problem').textContent = new Set(vars).size < 3 ? 'Choose three different indicators.' : '';
-  const chosen = gv !== '';
+  const picked = vars.filter((v) => v !== '');
+  $('problem').textContent = new Set(picked).size < picked.length ? 'Choose three different indicators.' : '';
+  const chosen = gv !== '' && picked.length === 3 && new Set(picked).size === 3;
   document.querySelectorAll('.need').forEach((e) => (e.hidden = chosen));
   document.querySelectorAll('.have').forEach((e) => (e.hidden = !chosen));
   if (!chosen) { current = null; drawData(); return; }
@@ -95,7 +97,7 @@ function dataColumns() {
     { name: 'city', get: (i) => cities.city[i], text: true },
     { name: 'state', get: (i) => cities.state[i], text: true },
   ];
-  PERIODS.forEach((p) => cols.push({ name: `group_size_${p}`, get: (i) => (current ? groups.size[p][current.g][i] : null) }));
+  PERIODS.forEach((p) => cols.push({ name: `group_size_${p}`, get: (i) => ($('group').value !== '' ? groups.size[p][Number($('group').value)][i] : null) }));
   VARIABLES.forEach((v) => PERIODS.forEach((p) => cols.push({ name: `${v}_${p}`, get: (i) => cities.values[p][v][i] })));
   return cols;
 }
