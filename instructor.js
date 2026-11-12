@@ -117,6 +117,7 @@ async function saveSchedule() {
 }
 
 $('instrlink').addEventListener('click', (e) => { e.preventDefault(); openInstr(); });
+$('instrbtn').addEventListener('click', openInstr);
 $('instrclose').addEventListener('click', () => { $('instr').hidden = true; });
 $('schedsave').addEventListener('click', saveSchedule);
 if (location.hash === '#instructor') {

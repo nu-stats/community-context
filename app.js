@@ -166,7 +166,7 @@ async function start() {
   ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
   $('real').addEventListener('change', render);
-  document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  document.querySelectorAll('nav.tabs button[data-tab]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
   $('howdone').addEventListener('click', () => { showTab('start'); window.scrollTo(0, 0); });
   // A link ending in #how (the one in the posted instructions) opens the Video and instructions tab.
   if (location.hash === '#how') showTab('how');
@@ -224,7 +224,7 @@ function render() {
 
 // ---- tabs ----
 function showTab(name) {
-  document.querySelectorAll('nav.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  document.querySelectorAll('nav.tabs button[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
   document.querySelectorAll('section.tab').forEach((s) => (s.hidden = s.id !== 'tab-' + name));
 }
 
