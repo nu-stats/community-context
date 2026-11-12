@@ -14,13 +14,17 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = process.argv[2];
-if (!folder) throw new Error('Give the folder that holds group-2000.tsv, group-2006_10.tsv and group-2020_24.tsv');
+// With no folder, only data/cities.json is rebuilt (groups.json is kept as it is).
 const here = dirname(fileURLToPath(import.meta.url));
 const out = join(here, 'data');
 mkdirSync(out, { recursive: true });
 
 const periods = ['2000', '2006_10', '2020_24'];
-const variables = ['population', 'foreign_born_percent', 'poverty_percent', 'unemployment_percent'];
+const variables = [
+  'population', 'foreign_born_percent', 'poverty_percent', 'unemployment_percent',
+  // reported crimes per 100,000 residents (FBI), blank where the city has no value
+  'overall_crime_rate', 'violent_crime_rate', 'property_crime_rate',
+];
 
 // ---- cities ----
 function splitCsv(line) {
@@ -72,7 +76,29 @@ for (const p of periods) {
     cities.values[p][name] = cities.code.map((id) => place[id]?.[key] ?? null);
   }
 }
+// ---- single-year crime rates (for the look-up step of the knowledge checks) ----
+// The pooled rates (2006-2010, 2020-2024) are population-weighted averages of the yearly rates, so a
+// student cannot look one up in a single FBI table. When a pooled rate is hidden the page asks her for
+// one year inside the period, from these. Built by build-crime-years.mjs; a year with an incomplete
+// offense count is null, as in the pooled rates.
+{
+  const file = join(census, 'city-crime-years.json');
+  const yearly = JSON.parse(readFileSync(file, 'utf8'));
+  cities.crime_years = yearly.years;
+  cities.year_values = {};
+  for (const y of Object.values(yearly.years).flat()) {
+    cities.year_values[y] = {};
+    for (const [name, key] of [['overall_crime_rate', 'overall'], ['violent_crime_rate', 'violent'], ['property_crime_rate', 'property']]) {
+      cities.year_values[y][name] = cities.code.map((id) => yearly.rates[id]?.[y]?.[key] ?? null);
+    }
+  }
+}
 writeFileSync(join(out, 'cities.json'), JSON.stringify(cities));
+
+if (!folder) {
+  console.log(`${cities.code.length} cities written to ${out} (groups.json kept)`);
+  process.exit(0);
+}
 
 // ---- groups ----
 const groups = { names: [], size: {}, us: {} };

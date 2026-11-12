@@ -13,31 +13,54 @@
 
   <nav class="tabs noprint" role="tablist">
     <button type="button" role="tab" data-tab="start" aria-selected="true">Start here</button>
+    <button type="button" role="tab" data-tab="how" aria-selected="false">Video and instructions</button>
     <button type="button" role="tab" data-tab="top" aria-selected="false">Top 50</button>
     <button type="button" role="tab" data-tab="data" aria-selected="false">Data</button>
     <button type="button" role="tab" data-tab="weighted" aria-selected="false">Weighted averages</button>
     <button type="button" role="tab" data-tab="test" aria-selected="false">Test this site</button>
   </nav>
 
+  <!-- ===== Video and instructions (opens once the email is saved) ===== -->
+  <section class="tab" id="tab-how" hidden>
+    <div class="panel" id="howneed">Type your Northeastern email on the <b>Start here</b> tab and press Save. The video and the instructions open then.</div>
+    <div id="howhave" hidden>
+      <h2>Watch this first (2 minutes)</h2>
+      <video id="overview" controls preload="metadata" playsinline width="900" poster="">
+        <source src="media/overview.mp4" type="video/mp4">
+        <track kind="captions" src="media/overview.vtt" srclang="en" label="English" default>
+        Your browser cannot play this video. Read the instructions below instead.
+      </video>
+      <p class="muted">The same ground as the instructions below: the two parts, the tabs, and the learning checks. Captions are on the CC button.</p>
+      <div id="instructions"></div>
+    </div>
+  </section>
+
   <!-- ===== Start here ===== -->
   <section class="tab" id="tab-start">
     <h2>Before you start: choose your group and three indicators</h2>
     <div class="choose">
+      <label for="email">Your Northeastern email</label>
+      <div><input type="text" id="email" inputmode="email" autocomplete="off" style="width:100%"><button type="button" id="emailsave" style="margin-top:6px">Save</button> <span id="emailmsg" class="muted"></span></div>
       <label for="group">Group (country of birth)</label>
       <select id="group"><option value="">Loading...</option></select>
       <label for="rank">Rank the cities by</label>
       <select id="rank"></select>
+      <label for="part">Part of the profile</label>
+      <select id="part"><option value="2">Part 2: living conditions (you choose three indicators)</option><option value="3">Part 3: crime (the three crime rates)</option></select>
       <label for="v1">Given 1</label><select id="v1"></select>
       <label for="v2">Given 2</label><select id="v2"></select>
-      <label for="v3">Your indicator 1</label><select id="v3"></select>
-      <label for="v4">Your indicator 2</label><select id="v4"></select>
-      <label for="v5">Your indicator 3</label><select id="v5"></select>
+      <label for="v3">Indicator 1</label><select id="v3"></select>
+      <label for="v4">Indicator 2</label><select id="v4"></select>
+      <label for="v5">Indicator 3</label><select id="v5"></select>
     </div>
+    <p class="muted">Use your own email. It stays in your browser and is not sent anywhere. It makes your questions and look-ups your own, and it goes into the completion code you hand in, which your instructor checks against who submitted it.</p>
     <p id="problem" class="err"></p>
     <p><label><input type="checkbox" id="real" checked> Show median_household_income in 2024 dollars</label><br><span class="muted">Income is published in the dollars of each period (1999, 2010 and 2024). With this box ticked, 2000 and 2006-2010 are restated in 2024 dollars using the consumer price index, for the cities and for the national value, so the three periods can be compared. Untick it to see the published dollars.</span></p>
 
     <h2>Task 1. Choose three indicators</h2>
     <p>Two indicators are given: <code>population</code> (a count) and <code>foreign_born_percent</code>. Choose three more above, from poverty_percent, unemployment_percent, median_household_income, bachelors_percent, renter_percent, black_percent and hispanic_percent. You use the same indicators in every period. All five are shown for the 50 cities; the weighted averages are for the three you chose.</p>
+    <div id="crimenote" class="panel" hidden><b>Crime rates (Part 3).</b> overall_crime_rate, violent_crime_rate and property_crime_rate are reported crimes per 100,000 residents, from the FBI Uniform Crime Reporting city tables. 2000 is one year; 2006-2010 and 2020-2024 pool the yearly rates (total offenses divided by total population, times 100,000). Arson is not counted. Some cities have no value for a period (the city did not report, reported incomplete data, or is not in the table; for example Chicago has no rape counts before 2013, so its violent and overall rates are blank for 2000 and 2006-2010). A blank is shown as blank and that city is left out of that rate's calculation: the sum of the weights counts only cities with a value, the plain average uses only those cities, and the step-by-step block shows the number of cities with a value. Fewer cities means your weighted average describes fewer of the 50 cities.</div>
+
     <h2>Task 2. Find the cities where most of your group lives</h2>
     <p>Open the <b>Top 50</b> tab. It shows the group name and the 50 cities with the most people born in your group, ranked by the period you chose, with the size of your group in each of the three periods. To do it by hand: on the <b>Data</b> tab, click the group_size column for that period to sort largest to smallest. The first 50 rows are your cities.</p>
     <h2>Task 3. Collect the indicators for each city and period</h2>
@@ -59,6 +82,7 @@
     <div class="have" hidden>
       <h2 id="title-top"></h2>
       <p>Group size is the number of people in the city born in your group's country. The indicators are whole-city values (not values for your group). A blank means the Census Bureau has no value for that city.</p>
+      <p class="crimegap muted" hidden>A blank in a crime-rate column means that city has no value for that period (see the note on Start here). It is left out of that rate's calculation.</p>
       <p class="noprint"><button id="csv" type="button">Download this table as CSV</button></p>
       <div class="tablewrap"><table id="top"></table></div>
     </div>
@@ -76,13 +100,16 @@
     <div class="need">Choose your group and your three indicators on the <b>Start here</b> tab first.</div>
     <div class="have" hidden>
       <h2 id="title-weighted"></h2>
+      <div id="gates" class="panel"></div>
+      <div id="resultsblock" hidden>
       <p class="muted">A weighted average counts each city in proportion to how many people in your group live there. The plain average counts every city the same.</p>
 
       <h3>Step 1. National values</h3>
       <p>National (U.S.) values come from Census Bureau tables for the 50 states and DC, with the same definitions as the city values. They are filled in for every indicator and you can change them. Use them in your paper as the national comparison.</p>
       <div class="tablewrap" style="max-width:640px"><table id="national" class="calc"></table></div>
 
-      <h3>Step 2. Results for the three indicators you chose</h3>
+      <h3>Step 2. Results for the three indicators</h3>
+      <p class="crimegap muted" hidden>A blank in a crime-rate column means that city has no value for that period (see the note on Start here). It is left out of that rate's calculation.</p>
       <p class="formula">weighted average = (sum of group size x value) / (sum of group size)</p>
       <p class="muted">A city with no value for a variable is left out of that variable's calculation (its weight is not counted either).</p>
       <div id="calcs"></div>
@@ -99,6 +126,7 @@
         <li>Add up the group sizes (the "Sum of the group sizes" row).</li>
         <li>Divide the sum from step 2 by the sum from step 3.</li>
       </ol>
+      </div>
     </div>
   </section>
 
@@ -123,5 +151,6 @@
   </section>
 </main>
 <script src="app.js"></script>
+<script src="gates.js"></script>
 </body>
 </html>

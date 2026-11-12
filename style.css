@@ -27,9 +27,9 @@ nav.tabs button[aria-selected=true] { background: var(--accent); color: #fff; bo
 section.tab[hidden], .have[hidden], .need[hidden] { display: none; }
 
 /* panels and controls */
-.choose, .need, .formula { background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(12px); }
+.choose, .need, .panel, .formula { background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(12px); }
 .choose { display: grid; grid-template-columns: max-content 1fr; gap: 10px 14px; align-items: center; padding: 16px; max-width: 660px; }
-.need { padding: 14px 16px; margin-top: 16px; }
+.need, .panel { padding: 14px 16px; margin-top: 16px; }
 .formula { padding: 10px 14px; border-left: 3px solid var(--accent); color: var(--text); }
 select, input[type=number], table input[type=text] { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); }
 select { width: 100%; }
@@ -65,3 +65,33 @@ ol.steps li { margin: 4px 0; color: var(--text2); }
   body { background: #fff; color: #000; } nav.tabs, .noprint { display: none; }
   p, b, code { color: #000; } th { background: #eee; color: #000; }
 }
+
+/* knowledge-check gates */
+#gates { margin: 12px 0 18px; }
+#gates h3 { margin-top: 18px; }
+.opts { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
+.opts label { color: var(--text2); }
+.question { border-top: 1px solid var(--border); padding: 10px 0; }
+.good { color: #8fe7a0; font-weight: 600; }
+.bad { color: #ffb0b0; font-weight: 600; }
+.verdict { margin-left: 8px; }
+.lookup { color: #ffd98a; font-style: italic; }
+.videoslot { display: block; width: 100%; max-width: 640px; aspect-ratio: 16 / 9; border: 2px dashed var(--border-hover); border-radius: 12px; padding: 24px; text-align: center; color: var(--text2); background: rgba(255,255,255,.03); }
+.code { font-size: 1.6rem; letter-spacing: .08em; }
+.recordline { word-break: break-word; }
+details { margin: 8px 0 14px; }
+#gates input[type=text] { width: 12em; font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); }
+#email { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); }
+
+/* Video and instructions tab */
+#overview { width: 100%; max-width: 900px; border: 1px solid var(--border); border-radius: var(--radius); background: #000; display: block; }
+#instructions { max-width: 78ch; }
+#instructions h2 { margin-top: 28px; }
+#instructions h3 { margin-top: 26px; }
+#instructions h4 { margin-top: 20px; color: var(--text); }
+#instructions p, #instructions li { line-height: 1.55; }
+#instructions ul, #instructions ol { padding-left: 1.3em; }
+#instructions li { margin: 4px 0; }
+#instructions hr { border: 0; border-top: 1px solid var(--border); margin: 26px 0; }
+#instructions .tablewrap { max-width: 100%; }
+#instructions a { color: var(--accent); }

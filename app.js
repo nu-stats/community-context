@@ -5,7 +5,9 @@ const PERIODS = ['2000', '2006_10', '2020_24'];
 const PERIOD_LABEL = { '2000': '2000 Census', '2006_10': '2006-2010 survey', '2020_24': '2020-2024 survey' };
 const GIVEN = ['population', 'foreign_born_percent']; // always shown
 const MENU = ['poverty_percent', 'unemployment_percent', 'median_household_income', 'bachelors_percent', 'renter_percent', 'black_percent', 'hispanic_percent']; // the student chooses three
-const VARIABLES = [...GIVEN, ...MENU];
+// Part 3: the three crime rates (reported crimes per 100,000 residents, FBI), no choice.
+const CRIME = ['overall_crime_rate', 'violent_crime_rate', 'property_crime_rate'];
+const VARIABLES = [...GIVEN, ...MENU, ...CRIME];
 const COUNTS = ['population', 'median_household_income']; // whole numbers, shown with thousands separators
 const TOP = 50;
 // National values the course provides. The student types the others.
@@ -13,7 +15,7 @@ const national = {
   population: { '2000': '281421906', '2006_10': '303965272', '2020_24': '334922499' }, // 50 states and DC, same tables as the city data
   foreign_born_percent: { '2000': '11.1', '2006_10': '12.7', '2020_24': '14.1' },
 };
-for (const v of MENU) national[v] = { '2000': '', '2006_10': '', '2020_24': '' };
+for (const v of [...MENU, ...CRIME]) national[v] = { '2000': '', '2006_10': '', '2020_24': '' };
 
 // Median household income is in each period's own dollars (1999, 2010, 2024). The switch on
 // Start here restates 2000 and 2006-2010 in 2024 dollars with the annual consumer price index
@@ -22,12 +24,41 @@ const CPI = { '2000': 166.575, '2006_10': 218.056, '2020_24': 313.689 };
 const factor = (p) => ($('real') && $('real').checked ? CPI['2020_24'] / CPI[p] : 1);
 const isMoney = (v) => v === 'median_household_income';
 function values(p, v) {
-  const raw = cities.values[p][v];
+  const raw = cities.values[p][v] || cities.code.map(() => null); // crime rates are empty until Part 3 opens
   return isMoney(v) && factor(p) !== 1 ? raw.map((x) => (x === null ? null : Math.round(x * factor(p)))) : raw;
 }
 
 let cities, groups;
 const $ = (id) => document.getElementById(id);
+
+// ---- when each part is open: data/schedule.json (you edit this one file; see the README) ----
+// Each part has opens, closes (both optional, ISO date and time with the Boston offset) and locked (true = closed now).
+// The page asks the web server for the time (its Date header), so changing the computer's clock does not open a
+// part early, and it re-reads the schedule every minute, so a lock takes effect while students have the page open.
+let clockOffset = 0, schedule = {};
+const nowMs = () => Date.now() + clockOffset;
+const fmtTime = (iso) => new Date(iso).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' Eastern time';
+function partState(part) {
+  const s = schedule['part' + part] || {};
+  const name = 'Part ' + part;
+  if (s.locked) return { open: false, text: s.message || name + ' is closed for now. Your instructor will tell you when it opens.' };
+  if (s.opens && nowMs() < Date.parse(s.opens)) return { open: false, text: name + ' opens ' + fmtTime(s.opens) + '.' };
+  if (s.closes && nowMs() >= Date.parse(s.closes)) return { open: false, text: name + ' closed ' + fmtTime(s.closes) + '.' };
+  return { open: true, text: '' };
+}
+const partOpen = (part) => partState(part).open;
+async function loadSchedule() {
+  try {
+    const r = await fetch('data/schedule.json', { cache: 'no-store' });
+    if (r.ok) schedule = await r.json();
+    const d = Date.parse(r.headers.get('date') || '');
+    if (Number.isFinite(d)) clockOffset = d - Date.now();
+  } catch (x) { /* no schedule file: everything is open */ }
+}
+function partLabels() {
+  const base = { 2: 'Part 2: living conditions (you choose three indicators)', 3: 'Part 3: crime (the three crime rates)' };
+  [2, 3].forEach((n) => { $('part').options[n - 2].textContent = base[n] + (partOpen(String(n)) ? '' : ' (closed)'); });
+}
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const int = (n) => Math.round(n).toLocaleString('en-US');
 const dec = (n, d = 1) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -35,11 +66,68 @@ const cell = (v) => (v === null || v === undefined ? '' : Number.isInteger(v) ? 
 
 let current = null; // what is on screen: { group, rankBy, vars, rows }
 
+// ---- the student's Northeastern email: typed, kept in this browser only, never sent anywhere ----
+// It seeds her random draws and goes into her completion record (gates.js); it is not checked here.
+let studentEmail = '';
+const emailOk = (e) => /^[^@\s]+@(northeastern\.edu|husky\.neu\.edu)$/i.test(e);
+function saveEmail() {
+  const e = $('email').value.trim().toLowerCase();
+  if (!emailOk(e)) { $('emailmsg').textContent = 'Use your Northeastern email (it ends in @northeastern.edu).'; return; }
+  studentEmail = e;
+  try { localStorage.setItem('hev-email-v1', e); } catch (x) { /* works for this visit */ }
+  $('email').value = e;
+  $('emailmsg').textContent = 'Saved. If you change it later, your questions start over.';
+  applyAssignment();
+  showHow();
+  render();
+}
+// The video and the instructions open once the email is saved (they are part of the tool, not a
+// separate handout). The text comes from data/instructions.html, built from STUDENT-INSTRUCTIONS.md.
+let instructionsLoaded = false;
+async function showHow() {
+  const ok = emailOk(studentEmail);
+  $('howneed').hidden = ok;
+  $('howhave').hidden = !ok;
+  if (!ok || instructionsLoaded) return;
+  instructionsLoaded = true;
+  try {
+    $('instructions').innerHTML = await fetch('data/instructions.html').then((r) => r.text());
+  } catch (x) {
+    instructionsLoaded = false;
+    $('instructions').innerHTML = '<p class="err">The instructions did not load. Reload the page.</p>';
+  }
+}
+
+// With ASSIGN_GROUP (gates.js) the group is fixed by the email.
+function applyAssignment() {
+  if (typeof ASSIGN_GROUP === 'undefined' || !ASSIGN_GROUP || !emailOk(studentEmail) || !groups) return;
+  $('group').value = String(seedOf(studentEmail) % groups.names.length);
+  $('group').disabled = true;
+}
+
 function fill(select, items, selected) {
   select.innerHTML = items.map(([value, label]) => `<option value="${esc(value)}"${value === selected ? ' selected' : ''}>${esc(label)}</option>`).join('');
 }
 
+// The tool needs a computer (wide tables, typing look-ups next to a second window). On a phone it
+// shows a reminder and does not load. Tablets and computers are let through. A nudge only: a phone
+// set to "desktop site" gets past it.
+function isPhone() {
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPod|Windows Phone|Android.+Mobile|Mobile.+Firefox|BlackBerry|Opera Mini/i.test(ua)) return true;
+  const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+  return coarse && Math.min(screen.width, screen.height) < 600;
+}
+function phoneStop() {
+  document.querySelector('main').innerHTML =
+    '<h1>Immigration and Crime: Community Context</h1>' +
+    '<div class="panel" id="phonestop"><h2>Please use a computer</h2>' +
+    '<p>This tool will not work on a smartphone. Its tables are wide, and the look-ups ask you to work with a second window open.</p>' +
+    '<p>Open this same link on a laptop or desktop computer, with Chrome, Edge, Firefox or Safari.</p></div>';
+}
+
 async function start() {
+  if (isPhone()) { phoneStop(); return; }
   try {
     [cities, groups] = await Promise.all(['data/cities.json', 'data/groups.json'].map((f) =>
       fetch(f).then((r) => { if (!r.ok) throw new Error(`${f}: ${r.status}`); return r.json(); })));
@@ -61,11 +149,22 @@ async function start() {
   fill($('v2'), [['foreign_born_percent', 'foreign_born_percent']], 'foreign_born_percent');
   $('v1').disabled = $('v2').disabled = true;
   // No indicator is pre-selected: each student has to choose her own three.
-  ['v3', 'v4', 'v5'].forEach((id) => fill($(id), [['', ''], ...MENU.map((v) => [v, v])], ''));
+  try { const saved = localStorage.getItem('hev-email-v1'); if (saved && emailOk(saved)) { studentEmail = saved; $('email').value = saved; } } catch (e) { /* no saved email */ }
+  $('emailsave').addEventListener('click', saveEmail);
+  $('email').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveEmail(); });
+  await loadSchedule();
+  partLabels();
+  setInterval(async () => { const before = JSON.stringify([partOpen('2'), partOpen('3')]); await loadSchedule(); partLabels(); if (JSON.stringify([partOpen('2'), partOpen('3')]) !== before) render(); }, 60000);
+  applyAssignment();
+  showHow();
+  setPart();
+  $('part').addEventListener('change', () => { setPart(); render(); });
   ['group', 'rank', 'v1', 'v2', 'v3', 'v4', 'v5'].forEach((id) => $(id).addEventListener('change', render));
   $('csv').addEventListener('click', downloadCsv);
   $('real').addEventListener('change', render);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  // A link ending in #how (the one in the posted instructions) opens the Video and instructions tab.
+  if (location.hash === '#how') showTab('how');
   $('savenotes').addEventListener('click', saveNotes);
   render();
 }
@@ -78,27 +177,44 @@ function topCities(g, rankBy) {
   return idx.slice(0, TOP);
 }
 
+// Part 2: the student chooses three indicators (boxes start blank). Part 3: the three crime rates are given.
+function setPart() {
+  const crime = $('part').value === '3';
+  ['v3', 'v4', 'v5'].forEach((id, k) => {
+    if (crime) fill($(id), [[CRIME[k], CRIME[k]]], CRIME[k]);
+    else fill($(id), [['', ''], ...MENU.map((v) => [v, v])], '');
+    $(id).disabled = crime;
+  });
+  $('crimenote').hidden = !crime;
+  document.querySelectorAll('.crimegap').forEach((e) => (e.hidden = !crime));
+}
+
 function render() {
   const gv = $('group').value;
   const vars = [$('v3').value, $('v4').value, $('v5').value]; // the three chosen
   const shown = [...GIVEN, ...vars];
   const picked = vars.filter((v) => v !== '');
   $('problem').textContent = new Set(picked).size < picked.length ? 'Choose three different indicators.' : '';
-  const chosen = gv !== '' && picked.length === 3 && new Set(picked).size === 3;
+  const ps = partState($('part').value);
+  const chosen = ps.open && emailOk(studentEmail) && gv !== '' && picked.length === 3 && new Set(picked).size === 3;
+  const needText = !ps.open ? ps.text + ' The results appear here when it is open.' : !emailOk(studentEmail) ? 'Enter your Northeastern email on the <b>Start here</b> tab first.' : 'Choose your group and your three indicators on the <b>Start here</b> tab first.';
+  document.querySelectorAll('.need').forEach((e) => (e.innerHTML = needText));
   document.querySelectorAll('.need').forEach((e) => (e.hidden = chosen));
   document.querySelectorAll('.have').forEach((e) => (e.hidden = !chosen));
-  if (!chosen) { current = null; drawData(); return; }
+  if (!chosen) { current = null; drawData(); if (typeof gatesRender === 'function') gatesRender(); return; }
   const g = Number(gv);
   const rankBy = $('rank').value;
   const rows = topCities(g, rankBy);
   current = { g, rankBy, vars, shown, rows };
   $('title-top').textContent = `${groups.names[g]}: the ${TOP} cities where the group is largest (ranked by ${PERIOD_LABEL[rankBy]})`;
   $('title-weighted').textContent = `Weighted averages for ${groups.names[g]} (top ${TOP} cities, ranked by ${PERIOD_LABEL[rankBy]})`;
+  if (typeof gatesPrepare === 'function') gatesPrepare();
   drawTop();
   drawNational();
   drawCalcs();
   drawCoverage();
   drawData();
+  if (typeof gatesRender === 'function') gatesRender();
 }
 
 // ---- tabs ----
@@ -116,7 +232,8 @@ function dataColumns() {
     { name: 'state', get: (i) => cities.state[i], text: true },
   ];
   PERIODS.forEach((p) => cols.push({ name: `group_size_${p}`, get: (i) => ($('group').value !== '' ? groups.size[p][Number($('group').value)][i] : null) }));
-  VARIABLES.forEach((v) => PERIODS.forEach((p) => cols.push({ name: `${v}_${p}`, get: (i) => values(p, v)[i] })));
+  // a part's columns appear only while that part is open (Part 2: the Census indicators, Part 3: the crime rates)
+  VARIABLES.filter((v) => partOpen(CRIME.includes(v) ? '3' : '2')).forEach((v) => PERIODS.forEach((p) => cols.push({ name: `${v}_${p}`, get: (i) => values(p, v)[i], v, p })));
   return cols;
 }
 function drawData() {
@@ -133,7 +250,7 @@ function drawData() {
   });
   const arrow = (k) => (k === dataSort.col ? (dataSort.dir > 0 ? ' ▲' : ' ▼') : '');
   let h = '<thead><tr>' + cols.map((x, k) => `<th class="${x.text ? 'l' : ''}" data-col="${k}">${esc(x.name)}${arrow(k)}</th>`).join('') + '</tr></thead><tbody>';
-  for (const i of idx) h += '<tr>' + cols.map((x) => `<td class="${x.text ? 'l' : ''}">${x.text ? esc(x.get(i)) : cell(x.get(i))}</td>`).join('') + '</tr>';
+  for (const i of idx) h += '<tr>' + cols.map((x) => `<td class="${x.text ? 'l' : ''}">${x.text ? esc(x.get(i)) : x.v && typeof shownCell === 'function' ? shownCell(i, x.v, x.p) : cell(x.get(i))}</td>`).join('') + '</tr>';
   $('data').innerHTML = h + '</tbody>';
   $('data').querySelectorAll('th').forEach((th) => th.addEventListener('click', () => {
     const k = Number(th.dataset.col);
@@ -151,7 +268,7 @@ function drawTop() {
   rows.forEach((i, k) => {
     h += `<tr><td class="l">${k + 1}</td><td class="l">${esc(cities.city[i])}</td><td class="l">${esc(cities.state[i])}</td><td class="l">${esc(cities.code[i])}</td>`;
     PERIODS.forEach((p) => (h += `<td>${int(groups.size[p][g][i])}</td>`));
-    vars.forEach((v) => PERIODS.forEach((p) => (h += `<td>${cell(values(p, v)[i])}</td>`)));
+    vars.forEach((v) => PERIODS.forEach((p) => (h += `<td>${typeof shownCell === 'function' ? shownCell(i, v, p) : cell(values(p, v)[i])}</td>`)));
     h += '</tr>';
   });
   $('top').innerHTML = h + '</tbody>';
@@ -176,7 +293,7 @@ function drawNational() {
   });
   t.innerHTML = h + '</tbody>';
   t.querySelectorAll('input').forEach((el) => el.addEventListener('input', () => {
-    const typed = el.value.replace(/[,s]/g, '');
+    const typed = el.value.replace(/[,\s]/g, '');
     const f = isMoney(el.dataset.v) ? factor(el.dataset.p) : 1; // stored in the period's own dollars
     national[el.dataset.v][el.dataset.p] = typed !== '' && Number.isFinite(Number(typed)) && f !== 1 ? String(Number(typed) / f) : typed;
     drawCalcs();
@@ -205,7 +322,7 @@ function drawCalcs() {
     const row = (label, f, cls = '') => `<tr class="${cls}"><td class="l">${label}</td>` + PERIODS.map((p, k) => `<td>${f(res[k], k)}</td>`).join('') + '</tr>';
     h += `<h3>${esc(v)}</h3><div class="tablewrap" style="max-width:760px"><table class="calc"><thead><tr><th class="l"></th>` +
       PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>' +
-      row('Cities with a value', (r) => r.n) +
+      row('Number of cities with a value', (r) => r.n) +
       row('Sum of the group sizes (the weights)', (r) => int(r.sumW)) +
       row('Sum of (group size x value)', (r) => int(r.sumWV)) +
       row('Weighted average = second row / first row', (r) => (r.weighted === null ? 'no group residents' : dec(r.weighted)), 'key') +
@@ -239,7 +356,7 @@ function downloadCsv() {
   rows.forEach((i, k) => {
     const r = [groups.names[g], k + 1, cities.code[i], cities.city[i], cities.state[i]];
     PERIODS.forEach((p) => r.push(groups.size[p][g][i]));
-    vars.forEach((v) => PERIODS.forEach((p) => r.push(values(p, v)[i] ?? '')));
+    vars.forEach((v) => PERIODS.forEach((p) => r.push(typeof isMasked === 'function' && isMasked(i, v, p) ? '' : values(p, v)[i] ?? '')));
     lines.push(r.map(q).join(','));
   });
   const text = lines.join('\r\n') + '\r\n';
