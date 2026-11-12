@@ -95,8 +95,16 @@ async function saveSchedule() {
     const sha = (await cur.json()).sha;
     const body = { message: 'Open/lock settings changed from the Instructor controls', content: b64(JSON.stringify(next, null, 2) + '\n'), sha, branch: 'main' };
     const put = await fetch(api, { method: 'PUT', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (put.status === 403 || put.status === 404) throw new Error('The key cannot save to this site. Give it "Contents: Read and write" for the community-context repository.');
-    if (!put.ok) throw new Error(`GitHub answered ${put.status} when saving.`);
+    if (!put.ok) {
+      // show GitHub's own answer, so the cause is clear
+      let why = '';
+      try { why = (await put.json()).message || ''; } catch (x) { /* no body */ }
+      const need = put.headers.get('x-accepted-github-permissions') || '';
+      const hint = put.status === 403 || put.status === 404
+        ? ' On GitHub, open the key, click Edit, check that Repository access lists community-context and that Permissions shows Contents: Read and write, then click Update.'
+        : '';
+      throw new Error(`GitHub answered ${put.status}${why ? ': "' + why + '"' : ''}${need ? ' (it needs ' + need + ')' : ''}.${hint}`);
+    }
     try { if ($('ghremember').checked) localStorage.setItem(KEY_STORE, key); else localStorage.removeItem(KEY_STORE); } catch (x) { /* no storage */ }
     schedule = next; // this page shows the new settings right away
     partLabels();
