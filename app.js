@@ -49,7 +49,8 @@ function partState(part) {
 const partOpen = (part) => partState(part).open;
 async function loadSchedule() {
   try {
-    const r = await fetch('data/schedule.json', { cache: 'no-store' });
+    // the time in the address gets past GitHub's 10-minute cache, so a change reaches students quickly
+    const r = await fetch('data/schedule.json?t=' + Date.now(), { cache: 'no-store' });
     if (r.ok) schedule = await r.json();
     const d = Date.parse(r.headers.get('date') || '');
     if (Number.isFinite(d)) clockOffset = d - Date.now();

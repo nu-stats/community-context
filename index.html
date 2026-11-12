@@ -56,6 +56,27 @@
     </div>
     <p class="muted">Use your own email. It stays in your browser and is not sent anywhere. It makes your questions and look-ups your own, and it goes into the completion code you hand in, which your instructor checks against who submitted it.</p>
     <p id="problem" class="err"></p>
+    <!-- Instructor controls: hidden from students; opened with the "Instructor" link at the bottom of this tab -->
+    <div id="instr" class="panel" hidden>
+      <h3>Instructor: open or lock each part</h3>
+      <p class="muted">Changes apply to every student. Pages students already have open pick them up within about two minutes. Times are Boston time.</p>
+      <div class="instr-parts">
+        <div class="instr-part" data-part="2"></div>
+        <div class="instr-part" data-part="3"></div>
+      </div>
+      <p><label for="ghkey">Your saving key</label> <input type="password" id="ghkey" autocomplete="off" style="width:22em"> <label><input type="checkbox" id="ghremember"> remember on this computer</label></p>
+      <p><button type="button" id="schedsave">Save for all students</button> <button type="button" id="instrclose">Close</button> <span id="schedmsg" aria-live="polite"></span></p>
+      <details><summary>How to get your saving key (once)</summary>
+        <ol>
+          <li>Signed in to GitHub as <b>nu-stats</b>, open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</li>
+          <li>Name it (for example "Community Context") and choose an end date (for example the end of the term).</li>
+          <li>Repository access: <b>Only select repositories</b>, then <b>community-context</b>.</li>
+          <li>Permissions: <b>Contents</b>, <b>Read and write</b>. Nothing else.</li>
+          <li><b>Generate token</b>, copy it, paste it above, and tick "remember" on your own computer.</li>
+        </ol>
+        <p class="muted">The key stays in this browser and is sent only to GitHub, to save the open/lock settings. It can change only this site.</p>
+      </details>
+    </div>
     <p><label><input type="checkbox" id="real" checked> Show median_household_income in 2024 dollars</label><br><span class="muted">Income is published in the dollars of each period (1999, 2010 and 2024). With this box ticked, 2000 and 2006-2010 are restated in 2024 dollars using the consumer price index, for the cities and for the national value, so the three periods can be compared. Untick it to see the published dollars.</span></p>
 
     <h2>Task 1. Choose three indicators</h2>
@@ -75,6 +96,7 @@
     <h2>Notes</h2>
     <p class="muted">Cities: the 343 incorporated places with more than 75,000 residents in 2000, 2006-2010 and 2020-2024. Groups: the 59 countries and regions of birth with more than 75,000 members in the United States in 2000 that the Census Bureau reports the same way in all three periods. Sources: Census 2000 Summary File 3; American Community Survey 5-year estimates, 2006-2010 and 2020-2024. If two cities have exactly the same group size, the one with the lower city_code is ranked first.</p>
     <p class="muted">Indicator definitions: poverty_percent is the percent of people below the poverty level; unemployment_percent is the percent of the civilian labor force; median_household_income is in 2024 dollars when the box on Start here is ticked (2000 and 2006-2010 restated with the annual consumer price index, CPI-U), and in the dollars of each period (1999, 2010, 2024) when it is not; bachelors_percent is the percent of adults 25 and over with a bachelor's degree or higher; renter_percent is the percent of occupied homes that are rented; black_percent is Black or African American alone (not Hispanic); hispanic_percent is Hispanic or Latino of any race. Each is the same Census table in all three periods. The weighted average of median_household_income is an average of city medians, not a median.</p>
+    <p class="noprint" style="margin-top:28px;text-align:right"><a href="#instructor" id="instrlink" class="muted">Instructor</a></p>
   </section>
 
   <!-- ===== Top 50 ===== -->
@@ -150,8 +172,10 @@
     <p class="noprint"><button type="button" id="savenotes">Download my answers (text file)</button></p>
     <p class="muted">The answers stay in your browser. Nothing is sent anywhere. Download the file and send it to your instructor.</p>
   </section>
+
 </main>
 <script src="app.js"></script>
 <script src="gates.js"></script>
+<script src="instructor.js"></script>
 </body>
 </html>

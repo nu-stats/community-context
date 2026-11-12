@@ -96,3 +96,6 @@ details { margin: 8px 0 14px; }
 #instructions .tablewrap { max-width: 100%; }
 #instructions a { color: var(--accent); }
 .videoslot.vid { padding: 0; border: 1px solid var(--border); background: #000; }
+.instr-parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+.instr-part { border-top: 1px solid var(--border); padding-top: 6px; }
+#instr input[type=datetime-local] { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); color-scheme: dark; }
