@@ -78,7 +78,7 @@ Open **Weighted averages**. The results are hidden at first. You pass three shor
   - *Number of cities with a value* (a city with no value is left out of that indicator's calculation, and so is its weight).
   - *Sum of the group sizes (the weights)*.
   - *Sum of (group size x value)*: each city's group size times its value, added up.
-  - **Weighted average** = the second row divided by the first row. This describes the typical **member of your group**.
+  - **Weighted average** = the sum of (group size x value) divided by the sum of the group sizes. This describes the typical **member of your group**.
   - *Plain average of the cities*: every city counts the same. This describes the typical **city**.
   - *National value*.
   - *Weighted average minus plain average*. (The tool does not subtract the national value for you: the assignment asks you to compute "weighted average minus national" yourself, so do that subtraction in your own table.)
@@ -141,7 +141,7 @@ A weighted average is simple, but it is easy to produce a number without underst
 
 **Step A. Predict, then see.** Before you see anything, you choose whether the weighted average of your first indicator in 2020-2024 will be *higher than*, *lower than*, or *about the same as* the plain average of your 50 cities. There is no wrong choice. The tool then tells you the true answer and gives a one-line reason built from your own data, for example which city carries the most weight and how its value compares with the others. ("About the same" means within 2% of the plain average.)
 
-**Step B. Video and questions.** Watch the short video on what a weighted average is. (If the video is not posted yet, a text version appears under "Read it instead".) Then answer **five questions**. They are drawn from a larger bank, and which ones you get depends on your email, so a classmate's set is different. Two kinds:
+**Step B. Video and questions.** Watch the short video on what a weighted average is (under 2 minutes, with captions). A text version is under "Read it instead". Then answer **five questions**. They are drawn from a larger bank, and which ones you get depends on your email, so a classmate's set is different. Two kinds:
 
 - *Questions about your own data*: for example, which of your 50 cities carries the most weight; whether your weighted average is higher or lower than the plain average; what share of your group's U.S. residents live in your 50 cities. You answer these from your own Top 50 table.
 - *Concept questions*: for example, a small two-city example to calculate, why you should not just average the city percentages, what happens to the weighted average if the biggest city's group doubles, what the tool does with a city that has no value. In Part 3 there are also questions on how a crime rate per 100,000 residents is built.

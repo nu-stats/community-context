@@ -80,6 +80,9 @@ function saveEmail() {
   applyAssignment();
   showHow();
   render();
+  // After the email, the next thing she sees is the video and the instructions.
+  showTab('how');
+  window.scrollTo(0, 0);
 }
 // The video and the instructions open once the email is saved (they are part of the tool, not a
 // separate handout). The text comes from data/instructions.html, built from STUDENT-INSTRUCTIONS.md.
@@ -163,6 +166,7 @@ async function start() {
   $('csv').addEventListener('click', downloadCsv);
   $('real').addEventListener('change', render);
   document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  $('howdone').addEventListener('click', () => { showTab('start'); window.scrollTo(0, 0); });
   // A link ending in #how (the one in the posted instructions) opens the Video and instructions tab.
   if (location.hash === '#how') showTab('how');
   $('savenotes').addEventListener('click', saveNotes);
@@ -325,7 +329,7 @@ function drawCalcs() {
       row('Number of cities with a value', (r) => r.n) +
       row('Sum of the group sizes (the weights)', (r) => int(r.sumW)) +
       row('Sum of (group size x value)', (r) => int(r.sumWV)) +
-      row('Weighted average = second row / first row', (r) => (r.weighted === null ? 'no group residents' : dec(r.weighted)), 'key') +
+      row('Weighted average = sum of (group size x value) / sum of the group sizes', (r) => (r.weighted === null ? 'no group residents' : dec(r.weighted)), 'key') +
       row('Plain average of the cities', (r) => (r.plain === null ? '' : dec(r.plain))) +
       row('National value', (r, k) => (nat[k] === null ? '<span class="muted">type it in Step 1</span>' : COUNTS.includes(v) ? int(nat[k]) : String(nat[k]))) +
       row('Weighted average minus plain average', (r) => (r.weighted === null || r.plain === null ? '' : dec(r.weighted - r.plain))) +

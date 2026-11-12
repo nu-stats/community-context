@@ -7,7 +7,7 @@
 // ---- SETTINGS (change them here, in this one place) --------------------------------------
 // The weighted-average video. A YouTube or Vimeo "embed" address (https://www.youtube.com/embed/...)
 // or a direct .mp4 / .webm file both work. While it is empty the page shows a marked placeholder.
-const VIDEO_URL = '';
+const VIDEO_URL = 'media/weighted-average.mp4'; // captions: the same name ending in .vtt
 // An optional link for extra practice (for example a worksheet). Empty = no link shown.
 const PRACTICE_URL = '';
 // What happens after a student misses the same question twice:
@@ -287,7 +287,7 @@ const TEXT_VERSION = '<details><summary>Read it instead</summary><div class="mut
 function videoHtml() {
   let slot;
   if (!VIDEO_URL) slot = '<div class="videoslot"><b>VIDEO PLACEHOLDER</b><br>The weighted-average video (about 90 seconds) will appear here. It has not been recorded yet. Read the text version below.</div>';
-  else if (/\.(mp4|webm)(\?|$)/i.test(VIDEO_URL)) slot = `<video class="videoslot" controls src="${esc(VIDEO_URL)}"></video>`;
+  else if (/\.(mp4|webm)(\?|$)/i.test(VIDEO_URL)) slot = `<video class="videoslot vid" controls preload="metadata" playsinline src="${esc(VIDEO_URL)}"><track kind="captions" src="${esc(VIDEO_URL.replace(/\.(mp4|webm)(\?.*)?$/i, '.vtt'))}" srclang="en" label="English" default></video>`;
   else slot = `<iframe class="videoslot" src="${esc(VIDEO_URL)}" title="Weighted average video" allowfullscreen></iframe>`;
   return slot + TEXT_VERSION;
 }

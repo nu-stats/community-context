@@ -95,3 +95,4 @@ details { margin: 8px 0 14px; }
 #instructions hr { border: 0; border-top: 1px solid var(--border); margin: 26px 0; }
 #instructions .tablewrap { max-width: 100%; }
 #instructions a { color: var(--accent); }
+.videoslot.vid { padding: 0; border: 1px solid var(--border); background: #000; }
