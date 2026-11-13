@@ -94,9 +94,33 @@ details { margin: 8px 0 14px; }
 #instructions li { margin: 4px 0; }
 #instructions hr { border: 0; border-top: 1px solid var(--border); margin: 26px 0; }
 #instructions .tablewrap { max-width: 100%; }
-#instructions a { color: var(--accent); }
+#handouts { max-width: 78ch; }
+#handouts h2 { margin-top: 28px; }
+#handouts h3 { margin-top: 26px; }
+#handouts h4 { margin-top: 20px; color: var(--text); }
+#handouts p, #handouts li { line-height: 1.55; }
+#handouts ul, #handouts ol { padding-left: 1.3em; }
+#handouts li { margin: 4px 0; }
+#handouts hr { border: 0; border-top: 1px solid var(--border); margin: 26px 0; }
+#handouts .tablewrap { max-width: 100%; }
+#handouts blockquote, #instructions blockquote { margin: 10px 0; padding: 6px 14px; border-left: 3px solid var(--border); }
+#instructions a, #handouts a { color: var(--accent); }
 .videoslot.vid { padding: 0; border: 1px solid var(--border); background: #000; }
 .instr-parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
 .instr-part { border-top: 1px solid var(--border); padding-top: 6px; }
 #instr input[type=datetime-local] { font: inherit; color: var(--text); padding: 6px 10px; border: 1px solid var(--input-border); border-radius: var(--btn); background: var(--input); color-scheme: dark; }
 .tabs .instrbtn { margin-left: auto; }
+
+/* Weighted averages tab: tables and the figure panel only */
+#tab-weighted #figpanel { display: flex; flex-direction: column; gap: 14px; max-width: 760px; padding: 18px 20px; margin: 10px 0 26px; }
+#tab-weighted #figpanel p { margin: 0; }
+#tab-weighted #figpanel label { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+#tab-weighted #figpanel label select { flex: 0 1 18em; }
+#tab-weighted #figpanel #fignat { margin: 0; }
+#tab-weighted #figpanel #figtitle { flex: 1; min-width: 0; }
+/* National values and your weighted averages sit side by side, same table style */
+.sidebyside { display: flex; flex-wrap: nowrap; gap: 0; align-items: flex-start; overflow-x: auto; }
+.sidebyside h4 { margin: 0 0 6px; }
+.sidebyside table.calc { min-width: 0; }
+.sidebyside .tablewrap { max-width: none; }
+#calcs table.calc td.l { white-space: normal; }

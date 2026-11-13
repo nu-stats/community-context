@@ -422,7 +422,7 @@ async function makeCode() {
   gate.code = `${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}`;
 }
 function completionHtml() {
-  return `<h3>You passed all three steps</h3><p>Your results are below. Paste this completion code, and the record line under it, into the course system with your write-up.</p>` +
+  return `<h3>You passed all three steps</h3><p>Your results are below. Paste this completion code, and the record line under it, at the top of your submission, before your write-up.</p>` +
     `<p class="code"><b>${esc(gate.code)}</b></p><p class="muted recordline" id="record">${esc(gate.record)}</p><p class="noprint"><button type="button" id="copycode">Copy the code and record</button> <span id="copied" class="good"></span></p>`;
 }
 document.addEventListener('click', (e) => {

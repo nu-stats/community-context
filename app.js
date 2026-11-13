@@ -95,6 +95,8 @@ async function showHow() {
   if (!ok || instructionsLoaded) return;
   instructionsLoaded = true;
   try {
+    // The two handouts (the assignment, then getting and checking the data) come first.
+    $('handouts').innerHTML = await fetch('data/handouts.html').then((r) => r.text());
     $('instructions').innerHTML = await fetch('data/instructions.html').then((r) => r.text());
   } catch (x) {
     instructionsLoaded = false;
@@ -171,6 +173,14 @@ async function start() {
   // A link ending in #how (the one in the posted instructions) opens the Video and instructions tab.
   if (location.hash === '#how') showTab('how');
   $('savenotes').addEventListener('click', saveNotes);
+  $('figgo').addEventListener('click', downloadFigure);
+  ['figvar', 'fignat'].forEach((id) => $(id).addEventListener('change', () => { $('figtitle').value = figDefaultTitle(); }));
+  $('calclink').addEventListener('click', (e) => {
+    e.preventDefault();
+    const box = $('calcsummary');
+    box.hidden = !box.hidden;
+    $('calclink').setAttribute('aria-expanded', String(!box.hidden));
+  });
   render();
 }
 
@@ -318,8 +328,21 @@ function calc(v, p) {
   return { sumW, sumWV, n, weighted: sumW > 0 ? sumWV / sumW : null, plain: n > 0 ? sumV / n : null };
 }
 
+// The final weighted averages, laid out like the national values table (variable by period).
+function drawResults() {
+  const fmt = (v, x) => (x === null ? '' : COUNTS.includes(v) || isMoney(v) ? int(x) : dec(x));
+  // No variable column: this table sits right beside the national values table and its rows line up with it.
+  let h = '<thead><tr>' + PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>';
+  current.shown.forEach((v) => {
+    h += '<tr>' + PERIODS.map((p) => `<td><input type="text" readonly tabindex="-1" aria-label="weighted average ${v} ${PERIOD_LABEL[p]}" value="${esc(fmt(v, calc(v, p).weighted))}"></td>`).join('') + '</tr>';
+  });
+  $('results').innerHTML = h + '</tbody>';
+}
+
 function drawCalcs() {
   if (!current) return;
+  drawResults();
+  drawFigPanel();
   let h = '';
   current.vars.forEach((v) => {
     const res = PERIODS.map((p) => calc(v, p));
@@ -337,6 +360,109 @@ function drawCalcs() {
       '</tbody></table></div>';
   });
   $('calcs').innerHTML = h;
+}
+
+// ---- Make a figure: one indicator's weighted averages, optionally beside the national values ----
+const figLabel = (v) => v.replace(/_/g, ' ');
+const figFmt = (v, x) => (x === null || x === undefined ? '' : isMoney(v) ? '$' + int(x) : COUNTS.includes(v) ? int(x) : v.endsWith('_percent') ? dec(x) + '%' : dec(x));
+function figDefaultTitle() {
+  const v = $('figvar').value;
+  const dollars = isMoney(v) && $('real').checked ? ' (2024 dollars)' : '';
+  return `${figLabel(v)}${dollars} in the cities where people born in ${groups.names[current.g]} live${$('fignat').checked ? ', compared with the nation' : ''}: 2000, 2006-2010 and 2020-2024`;
+}
+function drawFigPanel() {
+  const sel = $('figvar');
+  const keep = sel.value;
+  sel.innerHTML = current.vars.map((v) => `<option value="${esc(v)}">${esc(figLabel(v))}</option>`).join('');
+  if (current.vars.includes(keep)) sel.value = keep;
+  $('figtitle').value = figDefaultTitle();
+}
+function figRows() {
+  const v = $('figvar').value;
+  return PERIODS.map((p) => ({ label: PERIOD_LABEL[p], weighted: calc(v, p).weighted, national: natNumber(v, p) }));
+}
+function figCanvas() {
+  const v = $('figvar').value;
+  const withNat = $('fignat').checked;
+  const data = figRows();
+  const W = 1000, H = 620, L = 100, R = 30, T = 120, B = 110;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#111'; x.textBaseline = 'alphabetic';
+  // title, wrapped
+  x.font = 'bold 22px Arial, sans-serif';
+  const words = $('figtitle').value.split(/\s+/); let line = '', y = 34;
+  for (const w of words) {
+    if (x.measureText(line + w).width > W - 60 && line) { x.fillText(line.trim(), 30, y); y += 28; line = ''; }
+    line += w + ' ';
+  }
+  x.fillText(line.trim(), 30, y);
+  // scale
+  const vals = data.flatMap((d) => [d.weighted, withNat ? d.national : null]).filter((n) => n !== null && n !== undefined);
+  const max = Math.max(...vals, 1);
+  const raw = max / 5, mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].find((m) => m * mag >= raw) * mag;
+  const top = Math.ceil(max / step) * step;
+  const ph = H - T - B, pw = W - L - R;
+  const yOf = (n) => T + ph - (n / top) * ph;
+  x.font = '14px Arial, sans-serif'; x.textAlign = 'right'; x.strokeStyle = '#ddd'; x.lineWidth = 1;
+  for (let t = 0; t <= top + 1e-9; t += step) {
+    x.beginPath(); x.moveTo(L, yOf(t)); x.lineTo(W - R, yOf(t)); x.stroke();
+    x.fillStyle = '#444'; x.fillText(figFmt(v, t).replace(/\.0%$/, '%'), L - 8, yOf(t) + 5);
+  }
+  x.strokeStyle = '#111'; x.beginPath(); x.moveTo(L, T); x.lineTo(L, T + ph); x.lineTo(W - R, T + ph); x.stroke();
+  // bars
+  const series = [{ key: 'weighted', name: 'Weighted average (average member of the group)', color: '#c8102e' }];
+  if (withNat) series.push({ key: 'national', name: 'National value', color: '#555' });
+  const gw = pw / data.length, bw = Math.min(110, (gw * 0.7) / series.length);
+  x.textAlign = 'center';
+  data.forEach((d, k) => {
+    const x0 = L + gw * k + (gw - bw * series.length) / 2;
+    series.forEach((s, m) => {
+      const val = d[s.key];
+      if (val === null || val === undefined) return;
+      const bx = x0 + bw * m;
+      x.fillStyle = s.color; x.fillRect(bx, yOf(val), bw - 6, T + ph - yOf(val));
+      x.fillStyle = '#111'; x.font = 'bold 15px Arial, sans-serif'; x.fillText(figFmt(v, val), bx + (bw - 6) / 2, yOf(val) - 6);
+    });
+    x.fillStyle = '#111'; x.font = '16px Arial, sans-serif'; x.fillText(d.label, L + gw * k + gw / 2, T + ph + 26);
+  });
+  // y axis label
+  x.save(); x.translate(24, T + ph / 2); x.rotate(-Math.PI / 2); x.font = '15px Arial, sans-serif'; x.fillStyle = '#111';
+  x.fillText(figLabel(v) + (isMoney(v) && $('real').checked ? ' (2024 dollars)' : ''), 0, 0); x.restore();
+  // legend
+  x.textAlign = 'left'; x.font = '15px Arial, sans-serif';
+  let lx = L, ly = H - 52;
+  series.forEach((s) => { x.fillStyle = s.color; x.fillRect(lx, ly - 12, 14, 14); x.fillStyle = '#111'; x.fillText(s.name, lx + 20, ly); lx += 40 + x.measureText(s.name).width; });
+  // sources
+  x.fillStyle = '#555'; x.font = '12px Arial, sans-serif';
+  x.fillText('Sources: U.S. Census Bureau, Census 2000 (SF3); American Community Survey 5-year estimates 2006-2010 and 2020-2024.', L, H - 30);
+  x.fillText('Whole-city values, weighted by the number of group members in each of the 50 cities.', L, H - 14);
+  return c;
+}
+function figSave(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function downloadFigure() {
+  if (!current) return;
+  const v = $('figvar').value;
+  const base = `figure-${v}-${groups.names[current.g].replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+  const kind = $('figkind').value;
+  const withNat = $('fignat').checked;
+  if (kind === 'chart' || kind === 'both') figCanvas().toBlob((b) => figSave(b, base + '.png'), 'image/png');
+  if (kind === 'table' || kind === 'both') {
+    const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+    const lines = [q($('figtitle').value), ['period', 'weighted_average'].concat(withNat ? ['national_value'] : []).join(',')];
+    figRows().forEach((d) => lines.push([d.label, d.weighted === null ? '' : d.weighted, ...(withNat ? [d.national === null ? '' : d.national] : [])].map(q).join(',')));
+    lines.push('', q('Sources: U.S. Census Bureau, Census 2000 (SF3); American Community Survey 2006-2010 and 2020-2024. Whole-city values, weighted by group size in the 50 cities.'));
+    const blob = new Blob(['﻿', lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+    setTimeout(() => figSave(blob, base + '.csv'), kind === 'both' ? 400 : 0);
+  }
 }
 
 function drawCoverage() {

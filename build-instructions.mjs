@@ -15,7 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const md = readFileSync(join(here, 'STUDENT-INSTRUCTIONS.md'), 'utf8').replace(/\r\n/g, '\n');
+const read = (f) => readFileSync(join(here, f), 'utf8').replace(/\r\n/g, '\n');
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 // inline: `code`, **bold**, *italic*, [text](url)
@@ -32,6 +32,7 @@ const inline = (s) => {
   return t.replace(/\u0000(\d+)\u0000/g, (_, n) => code[Number(n)]);
 };
 
+function toHtml(md) {
 const lines = md.split('\n');
 const out = [];
 const open = []; // open list tags, outermost first ('ul' or 'ol')
@@ -70,6 +71,7 @@ for (let i = 0; i < lines.length; i++) {
     out.push('</tbody></table></div>');
     continue;
   }
+  if (line.startsWith('> ')) { closeLists(); out.push(`<blockquote>${inline(line.slice(2))}</blockquote>`); continue; }
   const bullet = raw.match(/^(\s*)[-*]\s+(.*)$/);
   if (bullet) {
     openList('ul', bullet[1].length >= 2 ? 2 : 1);
@@ -81,6 +83,7 @@ for (let i = 0; i < lines.length; i++) {
   if (numbered) {
     const depth = numbered[1].length >= 3 ? 2 : 1;
     const fresh = open.length < depth || open[depth - 1] !== 'ol';
+    closeLists(depth);
     openList('ol', depth);
     // a list cut by a table carries on with its own number (7. after the table, not 1.)
     if (fresh && numbered[2] !== '1') out[out.length - 1] = `<ol start="${numbered[2]}">`;
@@ -92,5 +95,24 @@ for (let i = 0; i < lines.length; i++) {
 }
 closeLists();
 
-writeFileSync(join(here, 'data', 'instructions.html'), out.join('\n'));
-console.log(`data/instructions.html written (${out.length} blocks)`);
+return out.join('\n');
+}
+
+writeFileSync(join(here, 'data', 'instructions.html'), toHtml(read('STUDENT-INSTRUCTIONS.md')));
+
+// The two handouts (the assignment, and getting and checking the data) open first on the tab.
+// The figure-download section is left out until the tool has that button.
+const dropSection = (md, heading) => {
+  const start = md.indexOf('### ' + heading);
+  if (start < 0) return md;
+  const end = md.indexOf('\n### ', start + 4);
+  return md.slice(0, start) + (end < 0 ? '' : md.slice(end + 1));
+};
+const handouts = [
+  read('HANDOUT-ASSIGNMENT.md')
+    .replace('(see the separate data instructions handout)', '(see Getting and checking the data, below)')
+    .replace(/ In the tool you choose the indicator.*?\(see the data instructions handout\)\./, ''),
+  read('HANDOUT-DATA.md'),
+].join('\n\n---\n\n');
+writeFileSync(join(here, 'data', 'handouts.html'), toHtml(handouts));
+console.log('data/instructions.html and data/handouts.html written');
