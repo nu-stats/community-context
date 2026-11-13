@@ -458,7 +458,8 @@ function downloadFigure() {
   if (kind === 'table' || kind === 'both') {
     const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
     const lines = [q($('figtitle').value), ['period', 'weighted_average'].concat(withNat ? ['national_value'] : []).join(',')];
-    figRows().forEach((d) => lines.push([d.label, d.weighted === null ? '' : d.weighted, ...(withNat ? [d.national === null ? '' : d.national] : [])].map(q).join(',')));
+    const rnd = (x) => (x === null || x === undefined ? '' : COUNTS.includes(v) || isMoney(v) ? Math.round(x) : Math.round(x * 10) / 10);
+    figRows().forEach((d) => lines.push([d.label, rnd(d.weighted), ...(withNat ? [rnd(d.national)] : [])].map(q).join(',')));
     lines.push('', q('Sources: U.S. Census Bureau, Census 2000 (SF3); American Community Survey 2006-2010 and 2020-2024. Whole-city values, weighted by group size in the 50 cities.'));
     const blob = new Blob(['﻿', lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
     setTimeout(() => figSave(blob, base + '.csv'), kind === 'both' ? 400 : 0);
