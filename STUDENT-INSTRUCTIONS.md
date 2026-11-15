@@ -9,6 +9,8 @@
 
 ## Read this first: a tool, not a replacement for understanding
 
+**This tool is only one option. You are free to use Social Explorer or the Census Bureau website (data.census.gov) to download the data and calculate the weighted averages yourself. If you do, just email your instructor to let them know, so you will not have to go through the learning checks.**
+
 This tool gathers and organizes public data for you: the cities where your group lives, the Census values for each city, the FBI crime rates, and the weighted averages. It saves you hours of looking up numbers by hand. It does **not** replace understanding how those numbers are made. You will be asked to explain them in your paper, and the point of the assignment is that you can say where each number came from and what it means.
 
 For that reason the tool has **built-in learning checks**. You cannot see the final results until you pass them. They are short, and if you read the data you are working with and watch the video, you will pass them without trouble. They are described in detail in [The learning checks](#the-learning-checks) below. Please read that section before you start, so nothing surprises you.

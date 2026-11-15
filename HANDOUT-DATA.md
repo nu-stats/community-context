@@ -4,6 +4,8 @@
 
 **Tool:** <https://nu-stats.github.io/community-context/>. Laptop or desktop only, no phone. Use the **same browser** every time, **not a private window**, and do not clear site data. The tool keeps your place there.
 
+**This tool is only one option. You are free to use Social Explorer or the Census Bureau website (data.census.gov) to download the data and calculate the weighted averages yourself. If you do, just email your instructor to let them know, so you will not have to go through the learning checks.**
+
 ### Get the data (about 10 minutes)
 
 1. **Start here tab.** Save your `@northeastern.edu` email. Your quiz and look-ups are tied to it, and it goes into your completion code. Pick your **group** (59 countries of birth), then choose the ranking period your assignment names and **Part 2**.
