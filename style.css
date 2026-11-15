@@ -124,3 +124,9 @@ details { margin: 8px 0 14px; }
 .sidebyside table.calc { min-width: 0; }
 .sidebyside .tablewrap { max-width: none; }
 #calcs table.calc td.l { white-space: normal; }
+
+/* Top 50 and Data: numbers centered; the box fits the screen, so its scrollbars are in view, with a second sideways bar above it */
+#top td:not(.l), #top th:not(.l), #data td:not(.l), #data th:not(.l) { text-align: center; }
+#tab-top .tablewrap, #tab-data .tablewrap { max-height: calc(100vh - 150px); overflow: auto; }
+.topscroll { overflow-x: auto; overflow-y: hidden; margin: 0 0 6px; }
+.topscroll > div { height: 1px; }

@@ -272,6 +272,7 @@ function drawData() {
     dataSort = { col: k, dir: k === dataSort.col ? -dataSort.dir : (cols[k].text ? 1 : -1) };
     drawData();
   }));
+  topScroll($('data'));
 }
 
 function drawTop() {
@@ -287,6 +288,32 @@ function drawTop() {
     h += '</tr>';
   });
   $('top').innerHTML = h + '</tbody>';
+  topScroll($('top'));
+}
+
+/** A sideways scrollbar above a wide table, kept in step with the box's own, so a long table can be scrolled from the top. */
+function topScroll(table) {
+  const wrap = table.parentElement;
+  let bar = wrap.previousElementSibling;
+  if (!bar || !bar.classList.contains('topscroll')) {
+    bar = document.createElement('div');
+    bar.className = 'topscroll';
+    bar.setAttribute('aria-hidden', 'true');
+    bar.append(document.createElement('div'));
+    wrap.before(bar);
+    bar.addEventListener('scroll', () => { if (wrap.scrollLeft !== bar.scrollLeft) wrap.scrollLeft = bar.scrollLeft; });
+    wrap.addEventListener('scroll', () => { if (bar.scrollLeft !== wrap.scrollLeft) bar.scrollLeft = wrap.scrollLeft; });
+    // A table drawn on a hidden tab has no width yet: measure again when it is shown or resized.
+    new ResizeObserver(() => fit()).observe(table);
+  }
+  const fit = () => {
+    bar.firstChild.style.width = table.scrollWidth + 'px';
+    bar.hidden = table.scrollWidth <= wrap.clientWidth + 1;
+    // A second heading row sticks just under the first while the box scrolls.
+    const rows = table.tHead ? table.tHead.rows : [];
+    if (rows.length > 1) for (const th of rows[1].cells) th.style.top = rows[0].getBoundingClientRect().height + 'px';
+  };
+  fit();
 }
 
 // National values are typed as text (a number box changes when the mouse wheel passes over it).
