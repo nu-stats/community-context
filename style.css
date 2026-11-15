@@ -130,3 +130,5 @@ details { margin: 8px 0 14px; }
 #tab-top .tablewrap, #tab-data .tablewrap { max-height: calc(100vh - 150px); overflow: auto; }
 .topscroll { overflow-x: auto; overflow-y: hidden; margin: 0 0 6px; }
 .topscroll > div { height: 1px; }
+#results th, #results td, #results input[type=text] { text-align: center; }
+#calcs th:not(.l), #calcs td:not(.l) { text-align: center; }

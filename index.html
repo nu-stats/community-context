@@ -17,6 +17,7 @@
     <button type="button" role="tab" data-tab="top" aria-selected="false">Top 50</button>
     <button type="button" role="tab" data-tab="data" aria-selected="false">Data</button>
     <button type="button" role="tab" data-tab="weighted" aria-selected="false">Weighted averages</button>
+    <button type="button" role="tab" data-tab="calc" aria-selected="false">Calculations</button>
     <button type="button" role="tab" data-tab="test" aria-selected="false">Test this site</button>
     <button type="button" id="instrbtn" class="instrbtn">Instructor: open or lock parts</button>
   </nav>
@@ -92,9 +93,9 @@
     <h2>Task 3. Collect the indicators for each city and period</h2>
     <p>The Top 50 tab also shows, for each city, the five indicators (the two given and your three) in all three periods. These are whole-city values.</p>
     <h2>Task 4. Weighted averages</h2>
-    <p>The <b>Weighted averages</b> tab shows, for each variable and each period, the calculation step by step: the sum of the weights, the sum of weight times value, the weighted average, the plain average of the 50 cities, the national value, and the weighted average minus the plain average.</p>
+    <p>The <b>Weighted averages</b> tab shows two tables: the national values and your weighted averages. The <b>Calculations</b> tab shows how to calculate them and, for each variable and each period, the calculation step by step: the number of cities with a value, the sum of the weights, the sum of weight times value, and the weighted average.</p>
     <p class="formula">weighted average = SUM(weight x value) / SUM(weight), where the weight is the number of people in your group in that city.</p>
-    <p>The national values are filled in (you can change them). The last table shows how much of your group lives in the 50 cities.</p>
+    <p>The national values are filled in (you can change them).</p>
     <p>Tasks 5 and 6 (figures and the written profile) are done outside this site: copy the results into your figures and text.</p>
 
     <h2>Notes</h2>
@@ -131,8 +132,8 @@
       <div id="resultsblock" hidden>
       <p class="muted">A weighted average counts each city in proportion to how many people in your group live there. The plain average counts every city the same.</p>
 
-      <h3>Step 1. National values and your weighted averages</h3>
-      <p>National (U.S.) values come from Census Bureau tables for the 50 states and DC, with the same definitions as the city values. They are filled in for every indicator and you can change them. Use them in your paper as the national comparison. Beside them are your weighted averages: the value in the city of the average member of your group.</p>
+      <h3>National values and your weighted averages</h3>
+      <p>National (U.S.) values come from Census Bureau tables for the 50 states and DC, with the same definitions as the city values. They are filled in for every indicator and you can change them. Use them in your paper as the national comparison. Beside them are your weighted averages: the value in the city of the average member of your group. How each one is calculated is on the <b>Calculations</b> tab.</p>
       <div class="sidebyside">
         <div><h4>National values</h4><div class="tablewrap"><table id="national" class="calc"></table></div></div>
         <div><h4>Your weighted averages</h4><div class="tablewrap"><table id="results" class="calc"></table></div></div>
@@ -145,25 +146,30 @@
         <p><label>Title <input type="text" id="figtitle" style="width:100%"></label></p>
         <p><button type="button" id="figgo">Download</button></p>
       </div>
-      <p><a href="#calcsummary" id="calclink" aria-expanded="false" aria-controls="calcsummary">Calculations summary</a> <span class="muted">(every value used to calculate these)</span></p>
-      <div id="calcsummary" hidden>
-        <p class="crimegap muted" hidden>A blank in a crime-rate column means that city has no value for that period (see the note on Start here). It is left out of that rate's calculation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Calculations ===== -->
+  <section class="tab" id="tab-calc" hidden>
+    <div class="need">Choose your group and your three indicators on the <b>Start here</b> tab first.</div>
+    <div class="have" hidden>
+      <h2 id="title-calc"></h2>
+      <div class="panel" id="calcwait">The calculations appear when you pass the learning checks (Steps A, B and C) on the <b>Weighted averages</b> tab.</div>
+      <div id="calcblock" hidden>
+        <h3>How to calculate a weighted average</h3>
+        <p>A weighted average counts each city in proportion to how many people in your group live there. The plain average counts every city the same. Every number comes from the Top 50 tab: the group sizes (the weights) and your variables.</p>
         <p class="formula">weighted average = (sum of group size x value) / (sum of group size)</p>
-        <p class="muted">A city with no value for a variable is left out of that variable's calculation (its weight is not counted either).</p>
-        <div id="calcs"></div>
-        <h3>Check it yourself</h3>
-        <p>Every number comes from the Top 50 tab: the group sizes (the weights) and your variables. To calculate a weighted average yourself:</p>
         <ol class="steps">
           <li>Multiply each city's group size by its value, city by city.</li>
-          <li>Add up those products (the "Sum of (group size x value)" row).</li>
-          <li>Add up the group sizes (the "Sum of the group sizes" row).</li>
+          <li>Add up those products (the "Sum of (group size x value)" row below).</li>
+          <li>Add up the group sizes (the "Sum of the group sizes" row below).</li>
           <li>Divide the sum from step 2 by the sum from step 3.</li>
         </ol>
-      </div>
-
-      <h3>Step 3. How much of your group lives in these 50 cities?</h3>
-      <div class="tablewrap" style="max-width:760px"><table id="coverage" class="calc"></table></div>
-      <p class="muted">A low share means the results describe the large cities where your group lives, not everywhere the group lives.</p>
+        <p class="muted">A city with no value for a variable is left out of that variable's calculation (its weight is not counted either).</p>
+        <p class="crimegap muted" hidden>A blank in a crime-rate column means that city has no value for that period (see the note on Start here). It is left out of that rate's calculation.</p>
+        <h3>Step by step, for each variable</h3>
+        <div id="calcs"></div>
       </div>
     </div>
   </section>

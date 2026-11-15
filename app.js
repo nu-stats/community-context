@@ -175,12 +175,6 @@ async function start() {
   $('savenotes').addEventListener('click', saveNotes);
   $('figgo').addEventListener('click', downloadFigure);
   ['figvar', 'fignat'].forEach((id) => $(id).addEventListener('change', () => { $('figtitle').value = figDefaultTitle(); }));
-  $('calclink').addEventListener('click', (e) => {
-    e.preventDefault();
-    const box = $('calcsummary');
-    box.hidden = !box.hidden;
-    $('calclink').setAttribute('aria-expanded', String(!box.hidden));
-  });
   render();
 }
 
@@ -223,11 +217,11 @@ function render() {
   current = { g, rankBy, vars, shown, rows };
   $('title-top').textContent = `${groups.names[g]}: the ${TOP} cities where the group is largest (ranked by ${PERIOD_LABEL[rankBy]})`;
   $('title-weighted').textContent = `Weighted averages for ${groups.names[g]} (top ${TOP} cities, ranked by ${PERIOD_LABEL[rankBy]})`;
+  $('title-calc').textContent = `Calculations for ${groups.names[g]} (top ${TOP} cities, ranked by ${PERIOD_LABEL[rankBy]})`;
   if (typeof gatesPrepare === 'function') gatesPrepare();
   drawTop();
   drawNational();
   drawCalcs();
-  drawCoverage();
   drawData();
   if (typeof gatesRender === 'function') gatesRender();
 }
@@ -373,7 +367,6 @@ function drawCalcs() {
   let h = '';
   current.vars.forEach((v) => {
     const res = PERIODS.map((p) => calc(v, p));
-    const nat = PERIODS.map((p) => (natNumber(v, p)));
     const row = (label, f, cls = '') => `<tr class="${cls}"><td class="l">${label}</td>` + PERIODS.map((p, k) => `<td>${f(res[k], k)}</td>`).join('') + '</tr>';
     h += `<h3>${esc(v)}</h3><div class="tablewrap" style="max-width:760px"><table class="calc"><thead><tr><th class="l"></th>` +
       PERIODS.map((p) => `<th>${PERIOD_LABEL[p]}</th>`).join('') + '</tr></thead><tbody>' +
@@ -381,9 +374,6 @@ function drawCalcs() {
       row('Sum of the group sizes (the weights)', (r) => int(r.sumW)) +
       row('Sum of (group size x value)', (r) => int(r.sumWV)) +
       row('Weighted average = sum of (group size x value) / sum of the group sizes', (r) => (r.weighted === null ? 'no group residents' : dec(r.weighted)), 'key') +
-      row('Plain average of the cities', (r) => (r.plain === null ? '' : dec(r.plain))) +
-      row('National value', (r, k) => (nat[k] === null ? '<span class="muted">type it in Step 1</span>' : COUNTS.includes(v) ? int(nat[k]) : String(nat[k]))) +
-      row('Weighted average minus plain average', (r) => (r.weighted === null || r.plain === null ? '' : dec(r.weighted - r.plain))) +
       '</tbody></table></div>';
   });
   $('calcs').innerHTML = h;
@@ -491,17 +481,6 @@ function downloadFigure() {
     const blob = new Blob(['﻿', lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
     setTimeout(() => figSave(blob, base + '.csv'), kind === 'both' ? 400 : 0);
   }
-}
-
-function drawCoverage() {
-  const { g, rows } = current;
-  let h = '<thead><tr><th class="l">period</th><th>group residents in these 50 cities</th><th>group residents in the United States</th><th>share</th></tr></thead><tbody>';
-  PERIODS.forEach((p) => {
-    const inTop = rows.reduce((s, i) => s + groups.size[p][g][i], 0);
-    const us = groups.us[p][g];
-    h += `<tr><td class="l">${PERIOD_LABEL[p]}</td><td>${int(inTop)}</td><td>${int(us)}</td><td>${us > 0 ? dec((100 * inTop) / us) + '%' : ''}</td></tr>`;
-  });
-  $('coverage').innerHTML = h + '</tbody>';
 }
 
 function downloadCsv() {

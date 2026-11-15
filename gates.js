@@ -131,7 +131,7 @@ function buildQuestions() {
   const Q = {
     own1: { text: 'Which of your top 50 cities carries the most weight in 2020-2024?', hint: 'Look at the group size column for 2020-2024 on the Top 50 tab.', choices: [topCity, ...others], correct: topCity, why: "It has the largest group size in 2020-2024, and a city's weight is its group size." },
     own2: { text: `Is your weighted average of ${v1} in 2020-2024 higher than, lower than, or about the same as the plain average of the 50 cities?`, hint: 'Think about which cities carry the most weight, and whether their values are above or below the typical city. Step A told you the direction.', choices: ['Higher', 'Lower', 'About the same'], correct: { higher: 'Higher', lower: 'Lower', same: 'About the same' }[dir], why: 'The weighted average leans toward the cities where your group is largest.', fixed: true },
-    own3: { text: `Your group has ${int(us)} residents in the United States in 2020-2024. About what share of them live in your 50 cities?`, hint: 'Add up the 2020-2024 group sizes of your 50 cities (download the table as CSV and sum the column), then divide by the U.S. total in the question.', choices: coverageChoices(cov), fixed: true, correct: `${cov}%`, why: 'That is the coverage line on the results page: your results describe those cities, not everyone in the group.' },
+    own3: { text: `Your group has ${int(us)} residents in the United States in 2020-2024. About what share of them live in your 50 cities?`, hint: 'Add up the 2020-2024 group sizes of your 50 cities (download the table as CSV and sum the column), then divide by the U.S. total in the question.', choices: coverageChoices(cov), fixed: true, correct: `${cov}%`, why: 'Your results describe those cities, not everyone in the group.' },
     c4: { text: 'City A has 900 group members and a poverty rate of 10%. City B has 100 and 30%. The weighted average poverty rate is closest to:', hint: 'Multiply each rate by its group size, add the two products, and divide by the total group size.', choices: ['10%', '12%', '20%', '30%'], correct: '12%', why: '(900 x 10 + 100 x 30) / 1,000 = 12.', fixed: true },
     c5: { text: 'Why not just average the 50 city percentages?', hint: 'Think about what the plain average does with a city that has very few group members.', choices: ['It treats a city with 50 group members the same as a city with 50,000.', 'It is too slow.', 'Percentages cannot be averaged.', 'It gives the same answer anyway.'], correct: 'It treats a city with 50 group members the same as a city with 50,000.', why: 'The plain average counts every city the same; the weighted average counts each city by how many group members live there.' },
     c6: { text: 'If the city with the largest group had twice as many group members and nothing else changed, the weighted average would move:', hint: 'A bigger weight gives a city more say in the average.', choices: ["toward that city's value", "away from that city's value", 'not change'], correct: "toward that city's value", why: 'A bigger weight gives that city more say in the average.' },
@@ -245,6 +245,8 @@ function gatesRender() {
   if (!current || !gate) { box.innerHTML = ''; return; }
   releaseLock();
   results.hidden = !gate.done;
+  $('calcblock').hidden = !gate.done;
+  $('calcwait').hidden = gate.done;
   const v1 = current.vars[0];
   let h = '';
   if (!gate.done) h += '<p>The results appear when you pass three short steps. They check that you know how the numbers are made.</p>';
