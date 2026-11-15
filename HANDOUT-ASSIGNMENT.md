@@ -33,7 +33,6 @@ Crime is shaped by place. To explain crime among immigrants, you first need to k
 4. How does the national value help you read the average member's city? What would be missing without it?
 5. What does a weighted average hide? Think about cities where the group is small.
 6. A city line is political, not a neighborhood. What could differ inside these cities?
-7. What share of your group lives in these 50 cities? What does that mean for how far your results describe the whole group?
 
 ### Hand in
 
