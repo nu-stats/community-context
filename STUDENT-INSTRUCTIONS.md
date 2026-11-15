@@ -73,21 +73,24 @@ The **Data** tab lists all 343 cities (the incorporated places with more than 75
 
 Open **Weighted averages**. The results are hidden at first. You pass three short steps (A, B and C, described below), and then the results appear:
 
-- **Step 1. National values.** The national (U.S.) value of each indicator for each period, filled in for you from Census Bureau tables. You can overtype them. Use them in your paper as the national comparison.
-- **Step 2. Results for each of your three indicators**, for each period, built step by step:
-  - *Number of cities with a value* (a city with no value is left out of that indicator's calculation, and so is its weight).
-  - *Sum of the group sizes (the weights)*.
-  - *Sum of (group size x value)*: each city's group size times its value, added up.
-  - **Weighted average** = the sum of (group size x value) divided by the sum of the group sizes. This describes the typical **member of your group**.
-  - *Plain average of the cities*: every city counts the same. This describes the typical **city**.
-  - *National value*.
-  - *Weighted average minus plain average*. (The tool does not subtract the national value for you: the assignment asks you to compute "weighted average minus national" yourself, so do that subtraction in your own table.)
-- **Step 3. How much of your group lives in these 50 cities.** The group's residents in your 50 cities, the group's residents in the whole United States, and the share. A low share means your results describe the large cities where your group lives, not everywhere it lives. Say this in your paper.
-- **Check it yourself.** Four lines showing how to rebuild any weighted average by hand from the Top 50 table. Do this once for one number, so you can explain where it comes from.
+- **National values.** The national (U.S.) value of each indicator for each period, filled in for you from Census Bureau tables. You can overtype them. Use them in your paper as the national comparison.
+- **Your weighted averages**, beside the national values and laid out the same way: one row per indicator, one column per period. Each one describes the city of the typical **member of your group**. The tool does not subtract the national value for you: the assignment asks you to compute "weighted average minus national" yourself, so do that subtraction in your own table.
+- **Make a figure**, to download a chart or table for one indicator (see below).
+
+### Step 5. The Calculations tab: how each weighted average is made
+
+The **Calculations** tab opens once you pass the learning checks. It shows the formula, weighted average = (sum of group size x value) / (sum of group size), the four steps to calculate it by hand, and for each of your three indicators and each period:
+
+- *Number of cities with a value* (a city with no value is left out of that indicator's calculation, and so is its weight).
+- *Sum of the group sizes (the weights)*.
+- *Sum of (group size x value)*: each city's group size times its value, added up.
+- **Weighted average** = the sum of (group size x value) divided by the sum of the group sizes.
+
+Rebuild one weighted average by hand from the Top 50 table, so you can explain where it comes from.
 
 ### What to take into your paper (Part 2)
 
-For each of your three indicators and each period: the weighted average, the plain average, and the national value, plus the share of your group in your 50 cities. The tables and the assignment questions ask you to describe the "average member's" city and how it changed. The CSV from the Top 50 tab is your data appendix.
+For each of your three indicators and each period: the weighted average and the national value. The tables and the assignment questions ask you to describe the "average member's" city and how it changed. The CSV from the Top 50 tab is your data appendix.
 
 ---
 
@@ -117,17 +120,17 @@ On **Start here**, keep the same email, group and ranking period as in Part 2 (s
 
 The table now shows `population`, `foreign_born_percent` and the three crime rates for your 50 cities (the same cities and the same group sizes as in Part 2).
 
-**Some cities have no value for a period.** The city did not report to the FBI, reported incomplete data, or is not in the table. (For example, Chicago has no rape counts before 2013, so its violent and overall rates are blank for 2000 and 2006-2010.) A blank stays blank. That city is left out of that rate's calculation: the sum of the weights counts only cities with a value, the plain average uses only those cities, and the results show **the number of cities with a value**. Fewer cities means your weighted average describes fewer of your 50 cities. Report this in your paper.
+**Some cities have no value for a period.** The city did not report to the FBI, reported incomplete data, or is not in the table. (For example, Chicago has no rape counts before 2013, so its violent and overall rates are blank for 2000 and 2006-2010.) A blank stays blank. That city is left out of that rate's calculation: the sum of the weights counts only cities with a value, and the Calculations tab shows **the number of cities with a value**. Fewer cities means your weighted average describes fewer of your 50 cities. Report this in your paper.
 
 ### Step 3. Learning checks, then the results
 
 The learning checks (A, B and C) start again for Part 3, with new questions and new look-ups. In Part 3 Step C, one of your look-ups may be a **crime rate**: the tool names one city, one rate and **one year**, and you work that year's rate out from the FBI's table for that year (the tool tells you how). For 2000 that is the period itself. For a pooled period the hidden cell is the 2006-2010 or 2020-2024 rate, which is a **weighted average of the single years in the period** (each year weighted by the city's population that year), so no one page shows it; the tool asks you for one of those years instead, and which year it asks for depends on your email.
 
-Then the **Weighted averages** tab shows the same step-by-step block for each crime rate. The national value boxes for the crime rates are empty: type the national value your assignment tells you to use.
+Then the **Weighted averages** tab shows the results for each crime rate, and the **Calculations** tab shows the same step-by-step block for each one. The national value boxes for the crime rates are empty: type the national value your assignment tells you to use.
 
 ### What to take into your paper (Part 3)
 
-For each crime rate and each period: the weighted average (the typical member's city), the plain average, and the number of cities with a value. Compare them with the Part 2 results for the same cities.
+For each crime rate and each period: the weighted average (the typical member's city) and the number of cities with a value. Compare them with the Part 2 results for the same cities.
 
 ---
 

@@ -25,7 +25,7 @@ Results stay hidden on the **Weighted averages** tab until you pass A, B and C. 
 
 ### After you pass
 
-The results appear: a table of the national values, then a table of **your weighted averages** laid out the same way, with one row per variable and one column per period. Open **Calculations summary** to see every value used (number of cities, sum of the weights, sum of group size x value, and the plain average, which you used in the learning checks but do not report). Also shown is the share of your group in your 50 cities. Do the hand check once, so you can explain where one number comes from. Copy the **completion code and record line** and **paste them at the top of your submission**, before your write-up.
+The **Weighted averages** tab shows a table of the national values and, beside it, a table of **your weighted averages** laid out the same way, with one row per variable and one column per period. The **Calculations** tab shows how each one is made: the formula, the steps, and for each variable the number of cities, the sum of the weights, the sum of group size x value, and the weighted average. Do the hand check once, so you can explain where one number comes from. Copy the **completion code and record line** and **paste them at the top of your submission**, before your write-up.
 
 ### Download your figures
 

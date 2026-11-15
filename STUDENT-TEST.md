@@ -10,7 +10,7 @@ Use the site the way you would for the assignment, with the real Census data.
 
 1. Pick a group (country of birth) that you know something about, for example where your family or a friend's family comes from.
 2. On **Start here**, choose the group, a ranking period, and three indicators from the menu. (Population and foreign_born_percent are given.)
-3. Read the **Top 50** tab, then the **Data** tab, then the **Weighted averages** tab.
+3. Read the **Top 50** tab, then the **Data** tab, then the **Weighted averages** and **Calculations** tabs.
 4. Try a different ranking period, or a different group, and see what changes.
 5. Download the Top 50 table as CSV and open it in Excel or Google Sheets.
 
