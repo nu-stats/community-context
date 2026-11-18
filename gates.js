@@ -11,15 +11,19 @@ const VIDEO_URL = 'media/weighted-average.mp4'; // captions: the same name endin
 // An optional link for extra practice (for example a worksheet). Empty = no link shown.
 const PRACTICE_URL = '';
 // What happens after a student misses the same question twice:
-//   'wait' = she must wait WAIT_MINUTES, then gets a new question (with the video and practice shown meanwhile)
+//   'wait' = she must wait, then gets a new question (with the video and practice shown meanwhile)
 //   'task' = she must first work out a small three-city weighted average, then gets a new question
 const AFTER_TWO_WRONG = 'wait';
-const WAIT_MINUTES = 60;
+// The wait gets longer each time: 15 minutes the first lockout, 30 the second, 45 the third (and every one after).
+// Applies to both the Step B question lockout and the Step C look-up wait, each counted on its own.
+const WAIT_SCHEDULE_MINUTES = [15, 30, 45];
+const waitMinutesFor = (n) => WAIT_SCHEDULE_MINUTES[Math.min(Math.max(n, 1), WAIT_SCHEDULE_MINUTES.length) - 1];
 // Look-ups: this many wrong entries for the same value start the same wait (each entry is checked against a fingerprint, so this stops guessing in a loop).
 const SPOT_TRIES = 3;
 // Missing the same question twice is a lockout. After this many lockouts (counted over the whole visit, across
 // groups) the page stops and asks the student to meet with the instructor, who gives her the release word.
-const MEETING_AFTER = 3;
+// (One more than WAIT_SCHEDULE_MINUTES has entries, so the student gets all three graduated waits first.)
+const MEETING_AFTER = WAIT_SCHEDULE_MINUTES.length + 1;
 // true = the group is fixed by the student's email (nobody can borrow a friend's group); false = she picks her own group.
 const ASSIGN_GROUP = false;
 // Fingerprint of the release word (the word itself is not written in any published file). Make a new one with
@@ -31,8 +35,14 @@ const SPOT_VARS = ['population', 'foreign_born_percent', 'poverty_percent', 'une
 // Crime rates come from FBI tables, not a survey, so a crime look-up names the years plainly.
 const YEARS_LABEL = { '2000': '2000', '2006_10': '2006-2010', '2020_24': '2020-2024' };
 const WHERE = {
-  census: "the Census Bureau's public data site (data.census.gov). Search for the city, then open the profile for the survey named above",
+  census: "the Census Bureau's public data site (data.census.gov). Search for the city, then open the profile for the release named above: either the decennial census or an American Community Survey estimate (1-year or 5-year)",
   crime: "the FBI's published table of offenses known to law enforcement, by city, for the year named above. Find the city, add up the offenses (violent: murder, rape, robbery and aggravated assault; property: burglary, larceny-theft and motor vehicle theft; overall: both; arson is not counted), divide by the city's population in that table, and multiply by 100,000",
+};
+// Named after a second miss on a census look-up, so the student knows exactly which release to open.
+const RELEASE_LABEL = {
+  '2000': 'the 2000 Census (the decennial count, not a survey)',
+  '2006_10': 'the American Community Survey 5-year estimates, 2006-2010',
+  '2020_24': 'the American Community Survey 5-year estimates, 2020-2024',
 };
 const WHAT = {
   population: 'the total population of the city',
@@ -62,6 +72,10 @@ const STORE = 'hev-gates-v1:';
 const LOCKS = 'hev-lockouts-v1';
 const lockCount = () => { try { return Number(localStorage.getItem(LOCKS)) || 0; } catch (e) { return 0; } };
 const setLockCount = (n) => { try { localStorage.setItem(LOCKS, String(n)); } catch (e) { /* kept for this page only */ } };
+// Step C look-up lockouts are counted separately (they never lead to a meeting), so their wait grows on their own schedule.
+const SPOT_LOCKS = 'hev-spot-lockouts-v1';
+const spotLockCount = () => { try { return Number(localStorage.getItem(SPOT_LOCKS)) || 0; } catch (e) { return 0; } };
+const setSpotLockCount = (n) => { try { localStorage.setItem(SPOT_LOCKS, String(n)); } catch (e) { /* kept for this page only */ } };
 const saveGate = () => { try { localStorage.setItem(STORE + gateKey, JSON.stringify(gate)); } catch (e) { /* private window: the gates still work, they just do not survive a reload */ } };
 const loadGate = (key) => { try { const s = localStorage.getItem(STORE + key); return s ? JSON.parse(s) : null; } catch (e) { return null; } };
 
@@ -313,6 +327,7 @@ function lockHtml() {
   const at = new Date(gate.lockedUntil).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   if (!gate.practice) gate.practice = newTask();
   return `<div class="question lockbox"><p><b>Take a break.</b> You missed question ${gate.lockedQ + 1} twice, so the questions open again in <b id="lockleft">${leftText(gate.lockedUntil)}</b> (at ${esc(at)}). Then you get a new question.</p>` +
+    '<p class="muted">The wait grows each time: 15 minutes the first lockout, 30 the second, 45 the third and every one after.</p>' +
     '<p>Use the time: watch the video again, or open "Read it instead" above, and try the practice example below as many times as you like.</p>' +
     (PRACTICE_URL ? `<p><a href="${esc(PRACTICE_URL)}" target="_blank" rel="noopener">More practice</a></p>` : '') +
     '<h4>Practice</h4>' + practiceHtml(gate.practice, 'prac', 'Weighted average rate:') + '<p><button type="button" id="pracnew">Another example</button></p></div>';
@@ -324,7 +339,7 @@ function meetingHtml() {
 }
 function spotLockHtml() {
   const at = new Date(gate.spotLockUntil).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  return `<div class="question lockbox"><p><b>Take a break.</b> Several entries did not match, so the look-ups open again in <b id="lockleft">${leftText(gate.spotLockUntil)}</b> (at ${esc(at)}).</p><p>Use the time to check, for each city: that you have the right city and state, the right survey or year, and the right units (a percent to one decimal, a whole number for population, crimes per 100,000 residents for crime).</p></div>`;
+  return `<div class="question lockbox"><p><b>Take a break.</b> Several entries did not match, so the look-ups open again in <b id="lockleft">${leftText(gate.spotLockUntil)}</b> (at ${esc(at)}).</p><p>Use the time to check, for each city: that you have the right city and state, the right survey or year, and the right units (a percent to one decimal, a whole number for population, crimes per 100,000 residents for crime).</p><p class="muted">The wait grows each time: 15 minutes the first time, 30 the second, 45 the third and every one after.</p></div>`;
 }
 function spotHtml(s, n) {
   const src = CRIME.includes(s.v) ? WHERE.crime : WHERE.census;
@@ -333,6 +348,7 @@ function spotHtml(s, n) {
   return `<div class="question"><p><b>${n + 1}.</b> <b>${esc(cities.city[s.i])}, ${esc(cities.state[s.i])}</b>: <code>${esc(s.v)}</code>, ${esc(pooled ? `the year ${s.y}` : PERIOD_LABEL[s.p])}.</p>` +
     (pooled ? `<p class="muted">The hidden cell is the ${esc(YEARS_LABEL[s.p])} rate, which is a weighted average of the rates of the single years in that period (each year weighted by the city's population that year). One year cannot be read off it, so look up the year ${esc(s.y)} on its own.</p>` : '') +
     `<p class="muted">This is ${esc(WHAT[s.v])}. Look it up in ${esc(src)}. Type ${unit}.</p>` +
+    (!pooled && (s.tries || 0) >= 1 ? `<p class="muted"><b>Still not matching?</b> You need ${esc(RELEASE_LABEL[s.p])}.</p>` : '') +
     `<input type="text" class="spotin" data-s="${n}" inputmode="decimal" autocomplete="off" value="${esc(s.typed)}"${s.ok ? ' disabled' : ''}> ` +
     (s.ok ? '<span class="good">Matches.</span>' : `<button type="button" class="spotcheck" data-s="${n}">Check</button> <span class="verdict bad" id="sv${n}" aria-live="polite">${s.msg ? esc(s.msg) : ''}</span>`) + '</div>';
 }
@@ -358,7 +374,7 @@ function wireGates() {
         setLockCount(lockCount() + 1);
         if (lockCount() >= MEETING_AFTER) { gate.meeting = true; gate.lockedQ = n; }
         else if (AFTER_TWO_WRONG === 'task') { q.needTask = true; q.task = newTask(); }
-        else { gate.lockedUntil = Date.now() + WAIT_MINUTES * 60000; gate.lockedQ = n; gate.practice = newTask(); }
+        else { gate.lockedUntil = Date.now() + waitMinutesFor(lockCount()) * 60000; gate.lockedQ = n; gate.practice = newTask(); }
       }
     }
     gatesRender();
@@ -401,7 +417,7 @@ function wireGates() {
     s.ok = ok; s.msg = ok ? '' : 'That does not match. Check the city, the period, and the units.';
     if (!ok) {
       gate.wrongSpot++; s.tries = (s.tries || 0) + 1;
-      if (s.tries >= SPOT_TRIES) { gate.spotLockUntil = Date.now() + WAIT_MINUTES * 60000; s.tries = 0; }
+      if (s.tries >= SPOT_TRIES) { setSpotLockCount(spotLockCount() + 1); gate.spotLockUntil = Date.now() + waitMinutesFor(spotLockCount()) * 60000; s.tries = 0; }
     }
     if (gate.spots.every((x) => x.ok)) { gate.done = true; await makeCode(); drawTop(); drawData(); }
     gatesRender();

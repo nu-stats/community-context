@@ -17,13 +17,15 @@
 
 Results stay hidden on the **Weighted averages** tab until you pass A, B and C. They check that you understand the numbers.
 
+**Lockout waits get longer each time you are locked out: 15 minutes, then 30, then 45.**
+
 | Step | What you do | If you miss |
 | --- | --- | --- |
 | **A. Predict** | Say whether your weighted average will be higher, lower or about the same as the plain average (same means within 2%). | No wrong answer. You see the true answer and why. |
-| **B. Learn** | Watch the 2-minute video, then answer 5 questions. Some use your own data and some are concepts. | 1st miss: a hint. 2nd miss on a question: a **60-minute lockout** and a new question. 3rd lockout: meet your instructor for a release word. |
-| **C. Look up** | Three random cities each hide one value ("look up"). Find each on data.census.gov (Census 2000, or the ACS for the period shown) and type it in. | Matches to the rounding shown (percent to 1 decimal, population as a whole number). 3 wrong tries: 60-minute wait. |
+| **B. Learn** | Watch the 2-minute video, then answer 5 questions. Some use your own data and some are concepts. | 1st miss: a hint. 2nd miss on a question: a lockout — **15 minutes the first time, 30 the second, 45 the third and every one after** — and a new question. 4th lockout: meet your instructor for a release word. |
+| **C. Look up** | Three random cities each hide one value ("look up"). Find each on data.census.gov (Census 2000, or the ACS for the period shown) and type it in. A 2nd wrong try names the exact year and release to use. | Matches to the rounding shown (percent to 1 decimal, population as a whole number). 3 wrong tries: a wait on the same growing schedule (15, then 30, then 45 minutes). |
 
-**Do not leave the checks to the last minute.** A lockout the night before the deadline cannot be waited out.
+**Do not leave the checks to the last minute.** A lockout the night before the deadline cannot be waited out, and later lockouts take longer.
 
 ### After you pass
 

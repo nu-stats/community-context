@@ -162,14 +162,16 @@ The tool accepts your number if it matches to the rounding shown: percentages to
 
 ### What happens when you miss
 
+#### Lockout waits get longer each time: 15, then 30, then 45 minutes
+
 - **Questions in Step B.**
   - *First wrong answer:* you get a **hint** (not the answer). Try again.
-  - *Second wrong answer on the same question:* that is a **lockout**. The questions close for **60 minutes**. A "take a break" box shows the time left. While you wait, watch the video again, read the text version, and try the **practice examples** (small three-city weighted averages, as many as you like). When the 60 minutes are over, the question you missed is replaced by a **new question**.
-  - *Third lockout* (counted across your whole visit, over all groups and parts): the tool stops and says **"Something is not landing."** You are asked to **meet with your instructor**. They will go over how a weighted average is made with you and give you a **release word** to continue. This is meant as help: three lockouts is a sign something is not clear yet, and a conversation is faster than more guessing.
-- **Look-ups in Step C.** If a number does not match, the tool says to check the city, the period and the units. After **three wrong entries for the same look-up** there is the same **60-minute wait**. Look-up waits do not count toward the "meet with your instructor" rule, because a mismatch can come from the source you used rather than from not understanding.
+  - *Second wrong answer on the same question:* that is a **lockout**. The questions close for a wait that starts at **15 minutes** and grows each time you are locked out: **15 minutes the first lockout, 30 the second, 45 the third and every one after.** A "take a break" box shows the time left. While you wait, watch the video again, read the text version, and try the **practice examples** (small three-city weighted averages, as many as you like). When the wait is over, the question you missed is replaced by a **new question**.
+  - *Fourth lockout* (counted across your whole visit, over all groups and parts): the tool stops and says **"Something is not landing."** You are asked to **meet with your instructor**. They will go over how a weighted average is made with you and give you a **release word** to continue. This is meant as help: four lockouts is a sign something is not clear yet, and a conversation is faster than more guessing.
+- **Look-ups in Step C.** If a number does not match, the tool says to check the city, the period and the units, and reminds you that the number comes from either the decennial census or an American Community Survey estimate (1-year or 5-year). After a **second wrong entry for the same look-up**, the tool names the **exact year and release** you need (for example "the American Community Survey 5-year estimates, 2006-2010"). After **three wrong entries for the same look-up** there is a wait, on the same growing schedule as the questions (**15, then 30, then 45 minutes**, counted on its own). Look-up waits do not count toward the "meet with your instructor" rule, because a mismatch can come from the source you used rather than from not understanding.
 - **Everything is recorded.** Your completion record (below) includes your wrong tries on questions and look-ups, your lockouts, and any meeting release. Your instructor can see these.
 
-Because of the waits, **do not leave the checks to the last minute.** A lockout late at night before a deadline cannot be waited out in time.
+Because the waits grow and can reach **45 minutes**, **do not leave the checks to the last minute.** A lockout late at night before a deadline cannot be waited out in time.
 
 ### After you pass: your completion code
 
