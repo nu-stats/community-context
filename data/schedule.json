@@ -1,8 +1,8 @@
 {
   "_help": "Times are Boston time with the offset: -05:00 in winter (after early November), -04:00 in summer. opens/closes: null = no limit. locked: true closes that part now (message is optional). Save, and the page picks it up within a minute or two of publishing.",
   "part2": {
-    "opens": "2026-11-11T21:25:00-05:00",
-    "closes": "2026-11-21T21:25:00-05:00",
+    "opens": "2026-11-10T21:25:00-05:00",
+    "closes": "2026-12-31T21:25:00-05:00",
     "locked": false,
     "message": ""
   },
